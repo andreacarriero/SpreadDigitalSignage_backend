@@ -6,6 +6,7 @@ import v1.engine
 #Logging
 import logging
 import util.logger
+log = logging.getLogger('APIv1.0')
 
 apiVersion = '1.0'
 
@@ -14,7 +15,7 @@ api = Api(app, api_version=apiVersion, base_path='/api/v1', api_spec_url='/spec'
 
 @app.route('/docs')
 def render_docs():
-    logging.info('Rendering api docs')
+    log.info('Rendering api docs')
     return """
 <!DOCTYPE html>
 <html>
@@ -60,7 +61,6 @@ class Version(Resource):
     })
 
     def get(self):
-        session['test'] = 'ok'
         return {
                 'engine_version': v1.engine.engine_version,
                 'api_version': apiVersion
