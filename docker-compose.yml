@@ -1,0 +1,16 @@
+version: '3.3'
+
+volumes:
+  datavolume:
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - datavolume:/opt/app/data
+    links:
+      - redis
+  redis:
+    image: redis:alpine

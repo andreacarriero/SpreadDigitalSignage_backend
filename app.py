@@ -4,10 +4,13 @@ from flask_cors import CORS, cross_origin
 #MODULES
 from util.db import db
 import util.logger
+from util.redissession import RedisSessionInterface
 
 app = Flask(__name__)
 #Cross Origin
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+#Session
+app.session_interface = RedisSessionInterface()
 
 #STATIC CONFING
 ##DATABASE
