@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS, cross_origin
 
 #MODULES
-from db import db
+from util.db import db
 import util.logger
 
 app = Flask(__name__)
@@ -11,7 +11,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 #STATIC CONFING
 ##DATABASE
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 ##SESSION
 app.secret_key = '@4f<\x1e\x9et\x99b"b\xca\x8cV\xa8\xb92\x03\x96\xf3I\xf0\xf7\xd7\xf0\xdaR5w\x93'

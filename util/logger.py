@@ -1,2 +1,2 @@
 import logging
-logging.basicConfig(filename='app.log', filemode='a', level=logging.DEBUG)
+logging.basicConfig(filename='data/app.log', filemode='a', level=logging.DEBUG)
