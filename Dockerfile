@@ -1,0 +1,14 @@
+FROM ubuntu
+MAINTAINER Andrea Carriero <info@andreacarriero.com>
+
+RUN apt-get update
+RUN apt-get install -y tar git curl nano wget dialog net-tools build-essential apt-utils
+RUN apt-get install -y python3 python3-dev python3-pip
+
+ADD . /opt/app
+RUN pip3 install --upgrade pip
+RUN pip3 install -r /opt/app/requirements.txt
+WORKDIR /opt/app
+CMD python3 server.python3
+
+EXPOSE 5000
