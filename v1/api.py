@@ -46,10 +46,10 @@ def render_docs():
 class Version(Resource):
     @swagger.doc({
         'tags': ['api'],
-        'description': 'Return info about this api and its engine',
+        'description': 'Get current API version',
         'responses': {
             '200': {
-                'description': 'Versions',
+                'description': 'Ok',
                 'examples': {
                     'application/json': {
                         'engine_version': '1.0',
@@ -59,10 +59,42 @@ class Version(Resource):
             }
         }
     })
-
     def get(self):
         return {
                 'engine_version': v1.engine.engine_version,
                 'api_version': apiVersion
                 }
+
+    @swagger.doc({
+        'tags': ['api'],
+        'description': 'Set current API version',
+        'parameters': [
+            {
+                'name': 'api_version',
+                'description': 'Api version to use',
+                'in': 'path',
+                'type': 'float'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Ok',
+                'examples': {
+                    'application/json': {
+                        'api_endpoint': 'url'
+                    }
+                }
+            },
+            '404': {
+                'description': 'Not Found',
+                'examples': {
+                    'application/json': {
+                        'error': 'Api endpoint not found'
+                    }
+                }
+            }
+        }
+    })
+    def post(self, api_version):
+        pass
 api.add_resource(Version, '/version')
