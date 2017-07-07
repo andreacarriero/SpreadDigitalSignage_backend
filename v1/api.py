@@ -3,6 +3,10 @@ from flask_restful_swagger_2 import Api, Resource, swagger
 
 import v1.engine
 
+#Logging
+import logging
+import util.logger
+
 apiVersion = '1.0'
 
 app = Blueprint('apiv1', __name__)
@@ -10,6 +14,7 @@ api = Api(app, api_version=apiVersion, base_path='/api/v1', api_spec_url='/spec'
 
 @app.route('/docs')
 def render_docs():
+    logging.info('Rendering api docs')
     return """
 <!DOCTYPE html>
 <html>

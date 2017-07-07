@@ -3,6 +3,7 @@ from flask_cors import CORS, cross_origin
 
 #MODULES
 from db import db
+import util.logger
 
 app = Flask(__name__)
 #Cross Origin
