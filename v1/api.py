@@ -63,7 +63,6 @@ class Version(Resource):
         session['test'] = 'ok'
         return {
                 'engine_version': v1.engine.engine_version,
-                'api_version': apiVersion,
-                'cookies': str(request.cookies)
+                'api_version': apiVersion
                 }
 api.add_resource(Version, '/version')
