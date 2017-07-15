@@ -37,7 +37,8 @@ class ScreenGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     location = db.Column(db.String(100))
-    active = db.Column(db.Boolean, default=True) 
+    active = db.Column(db.Boolean, default=True)
+    deleted = db.Column(db.Boolean, default=False) 
 
     def __init__(self, name, location, active=True):
         self.name = name
@@ -73,6 +74,7 @@ class Screen(db.Model):
     location = db.Column(db.String(100))
     group_id = db.Column(db.Integer(), db.ForeignKey('screen_group.id'))
     active = db.Column(db.Boolean, default=True)
+    deleted = db.Column(db.Boolean, default=False)
 
     def __init__(self, name, location=None, group_id=None, active=True):
         self.name = name
