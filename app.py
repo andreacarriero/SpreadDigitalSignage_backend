@@ -7,10 +7,10 @@ import util.logger
 from util.redissession import RedisSessionInterface
 
 app = Flask(__name__)
-#Cross Origin
+##Cross Origin
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-#Session
-app.session_interface = RedisSessionInterface()
+##Session
+#app.session_interface = RedisSessionInterface()
 
 #STATIC CONFING
 ##DATABASE
@@ -21,13 +21,13 @@ app.secret_key = '@4f<\x1e\x9et\x99b"b\xca\x8cV\xa8\xb92\x03\x96\xf3I\xf0\xf7\xd
 ##DEV
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-#ROUTER
+##ROUTER
 import v1.api
 app.register_blueprint(v1.api.app, url_prefix='/api/v1')
 
 
 
-#RUN
+##RUN
 db.init_app(app)
 with app.app_context():
     db.create_all()
