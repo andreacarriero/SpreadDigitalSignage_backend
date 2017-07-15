@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, session, url_for, redirect, jsonify
 from flask_restful_swagger_2 import Api, Resource, swagger
 from passlib.hash import pbkdf2_sha256
+from uuid import uuid4
 
 import v1.engine
 from v1.engine.messages import Messages
@@ -322,7 +323,7 @@ class Screen(Resource):
         }
     })
     def get(self):
-        screens = ScreenModel.query.all()
+        screens = ScreenModel.query.filter_by(deleted=False).all()
         screens_list = [screen.serialize() for screen in screens]
         return {
                     'screens': screens_list
@@ -397,7 +398,7 @@ class Screen(Resource):
             }
         }
     })
-    def put(self):
+    def post(self):
         try:
             screen_name = request.values['name']
             screen_location = request.values.get('location', None)
@@ -405,7 +406,7 @@ class Screen(Resource):
         except Exception as e:
             return {'error': str(e)}, 400
 
-        screen = ScreenModel.query.filter_by(name=screen_name).first()
+        screen = ScreenModel.query.filter_by(name=screen_name, deleted=False).first()
         if screen:
             return {
                     'error': Messages.screen_already_exist,
@@ -457,7 +458,7 @@ class ScreenItem(Resource):
         }
     })
     def get(self, screen_id):
-        screen = ScreenModel.query.filter_by(id=screen_id).first()
+        screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
             return {
                         'screen': screen.serialize()
@@ -526,8 +527,8 @@ class ScreenItem(Resource):
             }
         }
     })
-    def post(self, screen_id):
-        screen = ScreenModel.query.filter_by(id=screen_id).first()
+    def put(self, screen_id):
+        screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
             screen.name = request.values.get('name', screen.name)
             screen.location = request.values.get('location', screen.location)
@@ -570,9 +571,9 @@ class ScreenItem(Resource):
         }
     })
     def delete(self, screen_id):
-        screen = ScreenModel.query.filter_by(id=screen_id).first()
+        screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
-            screen.active = False
+            screen.deleted = True
             db.session.commit()
             return {'screen': screen.serialize()}, 200
         else:
@@ -582,7 +583,7 @@ class ScreenGroup(Resource):
 
     @swagger.doc({
         'tags': ['screengroup'],
-        'description': 'Get screen groups',
+        'description': 'Get all groups',
         'responses': {
             '200': {
                 'description': 'Groups list',
@@ -595,12 +596,361 @@ class ScreenGroup(Resource):
         }
     })
     def get(self):
-        groups = ScreenGroupModel.query.all()
+        groups = ScreenGroupModel.query.filter_by(deleted=False).all()
         groups_list = [group.serialize() for group in groups]
 
         return {
                     'groups': groups_list
                 }, 200
+
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Create a new group',
+        'parameters': [
+            {
+                'name': 'name',
+                'required': False,
+                'description': 'Group name',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'locatrion',
+                'required': False,
+                'description': 'Group location',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'active',
+                'required': False,
+                'description': 'If group is active or inactive',
+                'in': 'formData',
+                'type': 'boolean'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Group created',
+                'examples': {
+                    'application/json': {
+                        'group': ScreenGroupModel.doc()
+                    }
+                }
+            },
+            '409': {
+                'description': 'Group already exist',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screengroup_already_exist
+                    }
+                }
+            },
+            '500': {
+                'description': 'Error on item creation',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.database_add_error
+                    }
+                }
+            }
+        }
+    })
+    def post(self):
+        name = request.values.get('name', str(uuid4()))
+        location = request.values.get('location', None)
+        active = request.values.get('active', True)
+
+        group = ScreenGroupModel.query.filter_by(name=name, deleted=False).first()
+        if group:
+            return {'error': Messages.screengroup_already_exist}, 409
+
+        try:
+            group = ScreenGroupModel(name=name, location=location, active=active)
+            db.session.add(group)
+            db.session.commit()
+            return {'group': group.serialize()}, 200
+        except Exception as e:
+            return {'error': Messages.database_add_error}, 500
+
+
+class ScreenGroupItem(Resource):
+
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Get group details and members',
+        'parameters': [
+            {
+                'name': 'group_id',
+                'required': True,
+                'description': 'Group ID',
+                'in': 'path',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Group',
+                'examples': {
+                    'application/json': {
+                        'group': ScreenGroupModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Group not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screengroup_not_found
+                    }
+                }
+            }
+        }
+    })
+    def get(self, group_id):
+        group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
+        if group:
+            return {'group': group.serialize()}, 200
+        else:
+            return {'error': Messages.screengroup_not_found}, 404
+
+    
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Edit a group',
+        'parameters': [
+            {
+                'name': 'group_id',
+                'required': True,
+                'description': 'Group ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'name',
+                'required': False,
+                'description': 'Group name',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'locatrion',
+                'required': False,
+                'description': 'Group location',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'active',
+                'required': False,
+                'description': 'If group is active or inactive',
+                'in': 'formData',
+                'type': 'boolean'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Group modified',
+                'examples': {
+                    'application/json': {
+                        'group': ScreenGroupModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Group not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screengroup_not_found
+                    }
+                }
+            }
+        }
+    })    
+    def put(self, group_id):
+        group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
+        if group:
+            group.name = request.values.get('name', group.name)
+            group.location = request.values.get('location', group.location)
+            group.active = request.values.get('active', group.active)
+            db.session.commit()
+            return {'group': group.serialize()}, 200
+        else:
+            return {'error': Messages.screengroup_not_found}, 404
+
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Remove group',
+        'parameters': [
+            {
+                'name': 'group_id',
+                'required': True, 
+                'description': 'Group ID',
+                'in': 'path',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Group deleted',
+                'examples': {
+                    'application/json': {
+                        'group': ScreenGroupModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Group not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screengroup_not_found
+                    }
+                }
+            }
+        }
+    })
+    def delete(self, group_id):
+        group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
+        if group:
+            group.deleted = True
+            db.session.commit()
+            return {'group': group.serialize()}, 200
+        else:
+            return {'error': Messages.screengroup_not_found}, 404
+
+class ScreenGroupItemMember(Resource):
+
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Add screen to group',
+        'parameters': [
+            {
+                'name': 'group_id',
+                'required': True,
+                'description': 'Group ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'screen_id',
+                'required': True,
+                'description': 'Screen ID to add',
+                'in': 'formData',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Screen added',
+                'examples': {
+                    'application/json': {
+                        'screen': ScreenModel.doc(),
+                        'group': ScreenGroupModel.doc()
+                    }
+                }
+            },
+            '400': {
+                'description': 'Parameters error',
+                'examples': {
+                    'application/json': {
+                        'error': '<error>'
+                    }
+                }
+            },
+            '404': {
+                'description': 'Group or screen not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screen_not_found
+                    }
+                }
+            }
+        }
+    })
+    def put(self, group_id):
+        try:
+            screen_id = request.values['screen_id']
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+        group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
+        if not group:
+            return {'error': Messages.screengroup_not_found}, 404
+
+        screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
+        if screen:
+            screen.group_id = group_id
+            db.session.commit()
+            return {
+                        'screen': screen.serialize(),
+                        'group': group.serialize()
+                    }, 200
+        else:
+            return {'error': Messages.screen_not_found}, 404
+
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Remove screen from group',
+        'parameters': [
+            {
+                'name': 'group_id',
+                'required': True,
+                'description': 'Group ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'screen_id',
+                'required': True,
+                'description': 'Screen ID to add',
+                'in': 'formData',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Screen removed',
+                'examples': {
+                    'application/json': {
+                        'group': ScreenGroupModel.doc()
+                    }
+                }
+            },
+            '400': {
+                'description': 'Parameters error',
+                'examples': {
+                    'application/json': {
+                        'error': '<error>'
+                    }
+                }
+            },
+            '404': {
+                'description': 'Group or screen not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screen_not_found
+                    }
+                }
+            }
+        }
+    })    
+    def delete(self, group_id):
+        try:
+            screen_id = request.values['screen_id']
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+        group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
+        if not group:
+            return {'error': Messages.screengroup_not_found}, 404
+
+        screen = ScreenModel.query.filter_by(id=screen_id, group_id=group_id, deleted=False).first()
+        if screen:
+            screen.group_id = None
+            db.session.commit()
+            return {'group': group.serialize()}, 200
+        else:
+            return {'error': Messages.screen_not_found}, 404
 
 
 api.add_resource(Version, '/version')
@@ -608,3 +958,5 @@ api.add_resource(Auth, '/auth')
 api.add_resource(Screen, '/screen')
 api.add_resource(ScreenItem, '/screen/<int:screen_id>')
 api.add_resource(ScreenGroup, '/group')
+api.add_resource(ScreenGroupItem, '/group/<int:group_id>')
+api.add_resource(ScreenGroupItemMember, '/group/<int:group_id>/member')

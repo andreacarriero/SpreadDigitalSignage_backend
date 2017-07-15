@@ -35,7 +35,7 @@ class User(db.Model):
 
 class ScreenGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100))
     location = db.Column(db.String(100))
     active = db.Column(db.Boolean, default=True)
     deleted = db.Column(db.Boolean, default=False) 
@@ -54,6 +54,7 @@ class ScreenGroup(db.Model):
                     'name': self.name,
                     'location': self.location,
                     'active': self.active,
+                    'deleted': self.deleted,
                     'members': members_list
                 }
 
@@ -64,13 +65,14 @@ class ScreenGroup(db.Model):
                     'name': '<Group name>',
                     'location': '<Group location>',
                     'active': 'True/False',
+                    'deleted': 'True/False',
                     'members': [Screen.doc()]
                 }
 
 
 class Screen(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100))
     location = db.Column(db.String(100))
     group_id = db.Column(db.Integer(), db.ForeignKey('screen_group.id'))
     active = db.Column(db.Boolean, default=True)
@@ -88,6 +90,7 @@ class Screen(db.Model):
                     'name': self.name,
                     'location': self.location,
                     'active': self.active,
+                    'deleted': self.deleted,
                     'group_id': self.group_id
                 }
 
@@ -98,5 +101,6 @@ class Screen(db.Model):
                     'name': '<Screen name>',
                     'location': '<Screen location>',
                     'active': 'True/False',
+                    'deleted': 'True/False',
                     'group_id': '<Group id>'
                 }

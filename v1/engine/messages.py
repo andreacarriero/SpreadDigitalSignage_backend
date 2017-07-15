@@ -9,5 +9,10 @@ class Messages():
     screen_not_found = "Screen not found"
     screen_already_exist = "Screen already exist"
 
+    #Screen Group
+    screengroup_not_found = "Group not found"
+    screengroup_already_exist = "Group with this name already exists"
+
+    #Database
     database_add_error = "Error on adding item to DB"
     database_add_ok = "Item added to DB"
