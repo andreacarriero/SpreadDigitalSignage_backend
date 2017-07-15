@@ -45,8 +45,8 @@ class ScreenGroup(db.Model):
         self.active = active
 
     def serialize(self):
-        members = Screen.query.filter_by(group=self.id).all()
-        members_list = [Screen.serialize() for screen in members]
+        members = Screen.query.filter_by(group_id=self.id).all()
+        members_list = [screen.serialize() for screen in members]
 
         return {
                     'id': self.id,
@@ -77,15 +77,7 @@ class Screen(db.Model):
     def __init__(self, name, location=None, group_id=None, active=True):
         self.name = name
         self.location = location
-        
-        if group_id:
-            self.group_id = group_id
-        else:
-            group = ScreenGroup(str(uuid4()), None)
-            db.session.add(group)
-            db.session.commit()
-            self.group_id = group.id
-        
+        self.group_id = group_id
         self.active = active
 
     def serialize(self):
