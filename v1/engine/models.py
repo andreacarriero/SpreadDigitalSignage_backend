@@ -22,8 +22,9 @@ class User(db.Model):
                     'last_name': self.last_name,
                     'active': self.active
                 }
-
-    def doc(self=None):
+    
+    @staticmethod
+    def doc():
         return {
                     'email': '<User email address>',
                     'firs_name': '<User first name>',
