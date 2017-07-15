@@ -1,4 +1,5 @@
 from util.db import db
+from uuid import uuid4
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,4 +31,78 @@ class User(db.Model):
                     'firs_name': '<User first name>',
                     'last_name': '<User last name>', 
                     'active': 'True/False'
+                }
+
+class ScreenGroup(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    location = db.Column(db.String(100))
+    active = db.Column(db.Boolean, default=True) 
+
+    def __init__(self, name, location, active=True):
+        self.name = name
+        self.location = location
+        self.active = active
+
+    def serialize(self):
+        members = Screen.query.filter_by(group=self.id).all()
+        members_list = [Screen.serialize() for screen in members]
+
+        return {
+                    'id': self.id,
+                    'name': self.name,
+                    'location': self.location,
+                    'active': self.active,
+                    'members': members_list
+                }
+
+    @staticmethod
+    def doc():
+        return {
+                    'id': '<Group id>',
+                    'name': '<Group name>',
+                    'location': '<Group location>',
+                    'active': 'True/False',
+                    'members': [Screen.doc()]
+                }
+
+
+class Screen(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    location = db.Column(db.String(100))
+    group_id = db.Column(db.Integer(), db.ForeignKey('screen_group.id'))
+    active = db.Column(db.Boolean, default=True)
+
+    def __init__(self, name, location=None, group_id=None, active=True):
+        self.name = name
+        self.location = location
+        
+        if group_id:
+            self.group_id = group_id
+        else:
+            group = ScreenGroup(str(uuid4()), None)
+            db.session.add(group)
+            db.session.commit()
+            self.group_id = group.id
+        
+        self.active = active
+
+    def serialize(self):
+        return {
+                    'id': self.id,
+                    'name': self.name,
+                    'location': self.location,
+                    'active': self.active,
+                    'group_id': self.group_id
+                }
+
+    @staticmethod
+    def doc():
+        return {
+                    'id': '<Screen id>',
+                    'name': '<Screen name>',
+                    'location': '<Screen location>',
+                    'active': 'True/False',
+                    'group_id': '<Group id>'
                 }

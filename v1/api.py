@@ -5,6 +5,8 @@ from passlib.hash import pbkdf2_sha256
 import v1.engine
 from v1.engine.messages import Messages
 from v1.engine.models import User
+from v1.engine.models import Screen as ScreenModel
+from v1.engine.models import ScreenGroup as ScreenGroupModel
 
 from util.db import db
 
@@ -303,5 +305,306 @@ class Auth(Resource):
                     }, 401
 
 
+class Screen(Resource):
+
+    @swagger.doc({
+        'tags': ['screen'],
+        'description': 'Get all screens',
+        'responses': {
+            '200': {
+                'description': 'Screen list',
+                'examples': {
+                    'application/json': {
+                        'screens': [ScreenModel.doc()]
+                    }
+                }
+            }
+        }
+    })
+    def get(self):
+        screens = ScreenModel.query.all()
+        screens_list = [screen.serialize() for screen in screens]
+        return {
+                    'screens': screens_list
+                }, 200
+
+    @swagger.doc({
+        'tags': ['screen'],
+        'description': 'Add new screen',
+        'parameters': [
+            {
+                'name': 'name',
+                'required': True,
+                'description': 'Screen name',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'location',
+                'required': False,
+                'description': 'Screen location',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'active',
+                'required': False,
+                'description': 'If screen is active or not',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'group_id',
+                'required': False,
+                'description': 'Group id where to add screen',
+                'in': 'formData',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '201': {
+                'description': 'Screen created',
+                'examples': {
+                    'application/json': {
+                        'screen': ScreenModel.doc()
+                    }
+                }
+            },
+            '400': {
+                'description': 'Parameters error',
+                'examples': {
+                    'application/json': {
+                        'error': '<error>'
+                    }
+                }
+            },
+            '409': {
+                'description': 'Screen already exist',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screen_already_exist,
+                        'screen': ScreenModel.doc()
+                    }
+                }
+            },
+            '500': {
+                'description': 'Error on item creation',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.database_add_error
+                    }
+                }
+            }
+        }
+    })
+    def put(self):
+        try:
+            screen_name = request.values['name']
+            screen_location = request.values.get('location', None)
+            screen_group_id = request.values.get('group_id', None)
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+        screen = ScreenModel.query.filter_by(name=screen_name).first()
+        if screen:
+            return {
+                    'error': Messages.screen_already_exist,
+                    'screen': screen.serialize()
+                    }, 409
+
+        try:
+            screen = ScreenModel(screen_name, screen_location, screen_group_id)
+            db.session.add(screen)
+            db.session.commit()
+            return {
+                        'screen': screen.serialize()    
+                    }, 201
+        except Exception as e:
+            return {'error': Messages.database_add_error}, 500
+        
+
+class ScreenItem(Resource):
+
+    @swagger.doc({
+        'tags': ['screen'],
+        'description': 'Get screen details',
+        'parameters': [
+            {
+                'name': 'screen_id',
+                'required': True,
+                'description': 'Screen ID',
+                'in': 'path',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Screen',
+                'examples': {
+                    'application/json': {
+                        'screen': ScreenModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Screen not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screen_not_found
+                    }
+                }
+            }
+        }
+    })
+    def get(self, screen_id):
+        screen = ScreenModel.query.filter_by(id=screen_id).first()
+        if screen:
+            return {
+                        'screen': screen.serialize()
+                    }, 200
+        else:
+            return {
+                        'error': Messages.screen_not_found
+                    }, 404
+
+    @swagger.doc({
+        'tags': ['screen'],
+        'description': 'Update screen datails',
+        'parameters': [
+            {
+                'name': 'screen_id',
+                'required': True,
+                'description': 'Screen ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'name',
+                'required': False,
+                'description': 'Screen name',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'location',
+                'required': False,
+                'description': 'Screen location',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'active',
+                'required': False,
+                'description': 'If screen is active or not',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'group_id',
+                'required': False,
+                'description': 'Group id where to add screen',
+                'in': 'formData',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Screen updated',
+                'examples': {
+                    'application/json': {
+                        'screen': ScreenModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Screen not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screen_not_found
+                    }
+                }
+            }
+        }
+    })
+    def post(self, screen_id):
+        screen = ScreenModel.query.filter_by(id=screen_id).first()
+        if screen:
+            screen.name = request.values.get('name', screen.name)
+            screen.location = request.values.get('location', screen.location)
+            screen.active = request.values.get('active', screen.active)
+            screen.group_id = request.values.get('group_id', screen.group_id)
+            db.session.commit()
+            return {'screen': screen.serialize()}, 200
+        else:
+            return {'error': Messages.screen_not_found}, 404
+
+    @swagger.doc({
+        'tags': ['screen'],
+        'description': 'Mark screen as inactive',
+        'parameters': [
+            {
+                'name': 'screen_id',
+                'required': True,
+                'description': 'Screen ID',
+                'in': 'path',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Screen deleted',
+                'examples': {
+                    'application/json': {
+                        'screen': ScreenModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Screen not found',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.screen_not_found
+                    }
+                }
+            }
+        }
+    })
+    def delete(self, screen_id):
+        screen = ScreenModel.query.filter_by(id=screen_id).first()
+        if screen:
+            screen.active = False
+            db.session.commit()
+            return {'screen': screen.serialize()}, 200
+        else:
+            return {'error': Messages.screen_not_found}, 404
+
+class ScreenGroup(Resource):
+
+    @swagger.doc({
+        'tags': ['screengroup'],
+        'description': 'Get screen groups',
+        'responses': {
+            '200': {
+                'description': 'Groups list',
+                'examples': {
+                    'application/json': {
+                        'groups': [ScreenGroupModel.doc()]
+                    }
+                }
+            }
+        }
+    })
+    def get(self):
+        groups = ScreenGroupModel.query.all()
+        groups_list = [group.serialize() for group in groups]
+
+        return {
+                    'groups': groups_list
+                }, 200
+
+
 api.add_resource(Version, '/version')
 api.add_resource(Auth, '/auth')
+api.add_resource(Screen, '/screen')
+api.add_resource(ScreenItem, '/screen/<int:screen_id>')
+api.add_resource(ScreenGroup, '/group')
