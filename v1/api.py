@@ -23,7 +23,7 @@ api = Api(app, api_version=apiVersion, base_path='/api/v1', api_spec_url='/spec'
 
 #Auth
 def hash(password):
-	return pbkdf2_sha256.encrypt(password, rounds=20000, salt_size=16)
+    return pbkdf2_sha256.encrypt(password, rounds=20000, salt_size=16)
 
 @app.route('/docs')
 def render_docs():
@@ -91,17 +91,11 @@ class Auth(Resource):
         if session.get('logged_in'):
             user = User.query.filter_by(id=session.get('user_id')).first()
             if user:
-                return {
-                            'user': user.serialize()
-                        }, 200
+                return {'user': user.serialize()}, 200
             else:
-                return {
-                            'error': Messages.user_not_found
-                        }, 404
+                return {'error': Messages.user_not_found}, 404
         else:
-            return {
-                        'error': Messages.unauthenticated
-                    }, 401
+            return {'error': Messages.unauthenticated}, 401
     
     @swagger.doc({
         'tags': ['authentication'],
@@ -154,9 +148,7 @@ class Auth(Resource):
             email = request.values['email']
             password = request.values['password']
         except Exception as e:
-            return {
-                        'error': str(e)
-                    }, 400
+            return {'error': str(e)}, 400
 
         user = User.query.filter_by(email=email).first()
         if user:
@@ -164,13 +156,9 @@ class Auth(Resource):
                 session['logged_in'] = True
                 session['user_id'] = user.id
 
-                return {
-                            'user': user.serialize()
-                        }, 200
+                return {'user': user.serialize()}, 200
         else:
-            return {
-                        'error': Messages.user_not_found
-                    }, 404
+            return {'error': Messages.user_not_found}, 404
 
     @swagger.doc({
         'tags': ['authentication'],
@@ -248,28 +236,20 @@ class Auth(Resource):
             first_name = request.values['first_name']
             last_name = request.values['last_name']
         except Exception as e:
-            return {
-                        'error': str(e)
-                    }, 400
+            return {'error': str(e)}, 400
 
         user = User.query.filter_by(email=email).first()
         if user:
-            return {
-                        'error': Messages.user_already_exist
-                    }, 409
+            return {'error': Messages.user_already_exist}, 409
             
         try:
             user = User(email=email, password=hash(password), first_name=first_name, last_name=last_name)
             db.session.add(user)
             db.session.commit()
-            return {
-                        'user': user.serialize()
-                    }, 200
+            return {'user': user.serialize()}, 200
 
         except Exception as e:
-            return {
-                        'error': str(e)
-                    }, 500
+            return {'error': str(e)}, 500
     
     @swagger.doc({
         'tags': ['authentication'],
@@ -301,9 +281,7 @@ class Auth(Resource):
                         'message': Messages.logged_out
                     }, 200
         else:
-            return {
-                        'error': Messages.unauthenticated
-                    }, 401
+            return {'error': Messages.unauthenticated}, 401
 
 
 class Screen(Resource):
@@ -325,9 +303,7 @@ class Screen(Resource):
     def get(self):
         screens = ScreenModel.query.filter_by(deleted=False).all()
         screens_list = [screen.serialize() for screen in screens]
-        return {
-                    'screens': screens_list
-                }, 200
+        return {'screens': screens_list}, 200
 
     @swagger.doc({
         'tags': ['screen'],
@@ -404,7 +380,7 @@ class Screen(Resource):
             screen_location = request.values.get('location', None)
             screen_group_id = request.values.get('group_id', None)
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'message': str(e)}, 400
 
         screen = ScreenModel.query.filter_by(name=screen_name, deleted=False).first()
         if screen:
@@ -421,7 +397,7 @@ class Screen(Resource):
                         'screen': screen.serialize()    
                     }, 201
         except Exception as e:
-            return {'error': Messages.database_add_error}, 500
+            return {'message': Messages.database_add_error}, 500
         
 
 class ScreenItem(Resource):
@@ -537,7 +513,7 @@ class ScreenItem(Resource):
             db.session.commit()
             return {'screen': screen.serialize()}, 200
         else:
-            return {'error': Messages.screen_not_found}, 404
+            return {'message': Messages.screen_not_found}, 404
 
     @swagger.doc({
         'tags': ['screen'],
@@ -577,7 +553,7 @@ class ScreenItem(Resource):
             db.session.commit()
             return {'screen': screen.serialize()}, 200
         else:
-            return {'error': Messages.screen_not_found}, 404
+            return {'message': Messages.screen_not_found}, 404
 
 class ScreenGroup(Resource):
 
@@ -663,7 +639,7 @@ class ScreenGroup(Resource):
 
         group = ScreenGroupModel.query.filter_by(name=name, deleted=False).first()
         if group:
-            return {'error': Messages.screengroup_already_exist}, 409
+            return {'message': Messages.screengroup_already_exist}, 409
 
         try:
             group = ScreenGroupModel(name=name, location=location, active=active)
@@ -671,7 +647,7 @@ class ScreenGroup(Resource):
             db.session.commit()
             return {'group': group.serialize()}, 200
         except Exception as e:
-            return {'error': Messages.database_add_error}, 500
+            return {'message': Messages.database_add_error}, 500
 
 
 class ScreenGroupItem(Resource):
@@ -712,7 +688,7 @@ class ScreenGroupItem(Resource):
         if group:
             return {'group': group.serialize()}, 200
         else:
-            return {'error': Messages.screengroup_not_found}, 404
+            return {'message': Messages.screengroup_not_found}, 404
 
     
     @swagger.doc({
@@ -776,7 +752,7 @@ class ScreenGroupItem(Resource):
             db.session.commit()
             return {'group': group.serialize()}, 200
         else:
-            return {'error': Messages.screengroup_not_found}, 404
+            return {'message': Messages.screengroup_not_found}, 404
 
     @swagger.doc({
         'tags': ['screengroup'],
@@ -816,7 +792,7 @@ class ScreenGroupItem(Resource):
             db.session.commit()
             return {'group': group.serialize()}, 200
         else:
-            return {'error': Messages.screengroup_not_found}, 404
+            return {'message': Messages.screengroup_not_found}, 404
 
 class ScreenGroupItemMember(Resource):
 
@@ -871,11 +847,11 @@ class ScreenGroupItemMember(Resource):
         try:
             screen_id = request.values['screen_id']
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'message': str(e)}, 400
 
         group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
         if not group:
-            return {'error': Messages.screengroup_not_found}, 404
+            return {'message': Messages.screengroup_not_found}, 404
 
         screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
@@ -886,7 +862,7 @@ class ScreenGroupItemMember(Resource):
                         'group': group.serialize()
                     }, 200
         else:
-            return {'error': Messages.screen_not_found}, 404
+            return {'message': Messages.screen_not_found}, 404
 
     @swagger.doc({
         'tags': ['screengroup'],
@@ -938,11 +914,11 @@ class ScreenGroupItemMember(Resource):
         try:
             screen_id = request.values['screen_id']
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'message': str(e)}, 400
 
         group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
         if not group:
-            return {'error': Messages.screengroup_not_found}, 404
+            return {'message': Messages.screengroup_not_found}, 404
 
         screen = ScreenModel.query.filter_by(id=screen_id, group_id=group_id, deleted=False).first()
         if screen:
@@ -950,7 +926,7 @@ class ScreenGroupItemMember(Resource):
             db.session.commit()
             return {'group': group.serialize()}, 200
         else:
-            return {'error': Messages.screen_not_found}, 404
+            return {'message': Messages.screen_not_found}, 404
 
 
 api.add_resource(Version, '/version')
