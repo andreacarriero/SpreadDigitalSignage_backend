@@ -4,6 +4,7 @@ from passlib.hash import pbkdf2_sha256
 from uuid import uuid4
 
 import v1.engine
+from v1.engine.render_client import render_client
 from v1.engine.messages import Messages
 from v1.engine.models import User
 from v1.engine.models import Screen as ScreenModel
@@ -30,6 +31,10 @@ def render_docs():
     log.info('Rendering api docs')
     return '<!DOCTYPE html><html><head><title>API Docs</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"><style>body {margin: 0; padding: 0;}</style></head><body><redoc spec-url="spec.json"></redoc><script src="https://rebilly.github.io/ReDoc/releases/latest/redoc.min.js"> </script></body></html>'
 
+@app.route('/client')
+def get_client():
+    client = render_client()
+    return client
 
 class Version(Resource):
     @swagger.doc({
@@ -277,9 +282,7 @@ class Auth(Resource):
         if session.get('logged_in'):
             session['logged_in'] = False
             session['user_id'] = None
-            return {
-                        'message': Messages.logged_out
-                    }, 200
+            return {'message': Messages.logged_out}, 200
         else:
             return {'error': Messages.unauthenticated}, 401
 
@@ -517,7 +520,7 @@ class ScreenItem(Resource):
 
     @swagger.doc({
         'tags': ['screen'],
-        'description': 'Mark screen as inactive',
+        'description': 'Delete screen',
         'parameters': [
             {
                 'name': 'screen_id',

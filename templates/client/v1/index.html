@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <style>
+            @import url('https://fonts.googleapis.com/css?family=Roboto');
+            body {
+                margin: 0px;
+                font-family: 'Roboto', sans-serif;
+                max-height: 100vh;
+                overflow: hidden;
+            }
+            .headbar {
+                width: 100%;
+                height: 5vh;
+                text-align: center;
+                vertical-align: center;
+                line-height: 5vh;
+                font-size: 2em;
+            }
+            .footer {
+                position: fixed;
+                bottom: 0px;
+                width: 100%;
+                height: 7vh;
+                text-align: center;
+                vertical-align: center;
+                line-height: 7vh;
+                font-size: 3em;
+            }
+            .board{
+                width: 100%;
+                height: 88vh;
+            }
+            .row{
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- HEADER -->
+        {% if config['head']['active'] %}
+            <div class="headbar" style="background-color: {{config['head']['bg_color']}};">
+                <span style="color: {{config['head']['text_color']}};">
+                    {% if config['head']['marquee'] %}
+                        <marquee>{{config['head']['text']}}</marquee>
+                    {% else %}
+                        {{config['head']['text']}}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+        <!-- END HEADER -->
+
+        <!-- BODY -->
+        <div class="board" style="background-color: {{config['body']['bg_color']}};">
+            {% for item in config['content'] %}
+
+            {% endfor %}
+        </div>
+        <!-- END BODY -->
+
+        <!-- FOOTER -->
+        {% if config['footer']['active'] %}
+            <div class="footer" style="background-color: {{config['footer']['bg_color']}};">
+                <span style="color: {{config['footer']['text_color']}};">
+                    {% if config['footer']['marquee'] %}
+                        <marquee>{{config['footer']['text']}}</marquee>
+                    {% else %}
+                        {{config['footer']['text']}}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+        <!-- END FOOTER -->
+
+
+    </body>
+</html>
