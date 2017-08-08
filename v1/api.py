@@ -934,8 +934,8 @@ class ScreenGroupItemMember(Resource):
 
 api.add_resource(Version, '/version')
 api.add_resource(Auth, '/auth')
-api.add_resource(Screen, '/screen')
+api.add_resource(Screen, '/screens')
 api.add_resource(ScreenItem, '/screen/<int:screen_id>')
-api.add_resource(ScreenGroup, '/group')
+api.add_resource(ScreenGroup, '/groups')
 api.add_resource(ScreenGroupItem, '/group/<int:group_id>')
 api.add_resource(ScreenGroupItemMember, '/group/<int:group_id>/member')
