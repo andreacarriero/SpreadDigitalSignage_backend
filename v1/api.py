@@ -599,7 +599,7 @@ class ScreenGroup(Resource):
                 'type': 'string'
             },
             {
-                'name': 'locatrion',
+                'name': 'location',
                 'required': False,
                 'description': 'Group location',
                 'in': 'formData',
