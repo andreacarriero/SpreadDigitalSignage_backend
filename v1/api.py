@@ -568,7 +568,8 @@ class ScreenGroup(Resource):
                 'description': 'Groups list',
                 'examples': {
                     'application/json': {
-                        'groups': [ScreenGroupModel.doc()]
+                        'groups': [ScreenGroupModel.doc()],
+                        'no_group': [ScreenModel.doc()]
                     }
                 }
             }
@@ -578,8 +579,12 @@ class ScreenGroup(Resource):
         groups = ScreenGroupModel.query.filter_by(deleted=False).all()
         groups_list = [group.serialize() for group in groups]
 
+        no_group_screens = ScreenModel.query.filter_by(group_id=None).all()
+        no_group_screens_list = [screen.serialize() for screen in no_group_screens] 
+
         return {
-                    'groups': groups_list
+                    'groups': groups_list,
+                    'no_group': no_group_screens_list
                 }, 200
 
     @swagger.doc({
