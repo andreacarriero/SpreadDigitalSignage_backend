@@ -11,6 +11,7 @@ from v1.engine.models import Screen as ScreenModel
 from v1.engine.models import ScreenGroup as ScreenGroupModel
 
 from util.db import db
+from util.str2bool import str2bool
 
 #Logging
 import logging
@@ -516,7 +517,7 @@ class ScreenItem(Resource):
         if screen:
             screen.name = request.values.get('name', screen.name)
             screen.location = request.values.get('location', screen.location)
-            screen.active = request.values.get('active', screen.active)
+            screen.active = str2bool(request.values.get('active', screen.active))
             
             screen_group_id = request.values.get('group_id', screen.group_id)
             if screen_group_id:
@@ -655,7 +656,7 @@ class ScreenGroup(Resource):
     def post(self):
         name = request.values.get('name', str(uuid4()))
         location = request.values.get('location', None)
-        active = request.values.get('active', True)
+        active = str2bool(request.values.get('active', True))
 
         group = ScreenGroupModel.query.filter_by(name=name, deleted=False).first()
         if group:
@@ -768,7 +769,7 @@ class ScreenGroupItem(Resource):
         if group:
             group.name = request.values.get('name', group.name)
             group.location = request.values.get('location', group.location)
-            group.active = request.values.get('active', group.active)
+            group.active = str2bool(request.values.get('active', group.active))
             db.session.commit()
             return {'group': group.serialize()}, 200
         else:
