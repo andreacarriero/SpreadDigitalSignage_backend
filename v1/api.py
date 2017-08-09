@@ -797,6 +797,9 @@ class ScreenGroupItem(Resource):
         group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
         if group:
             group.deleted = True
+            screens = ScreenModel.query.filter_by(group_id=group.id, deleted=False).all()
+            for screen in screens:
+                screen.active = False
             db.session.commit()
             return {'group': group.serialize()}, 200
         else:
