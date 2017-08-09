@@ -77,7 +77,7 @@ class Auth(Resource):
                 'description': 'User not found',
                 'examples':  {
                     'application/json': {
-                        'error': Messages.user_not_found
+                        'message': Messages.user_not_found
                     }
                 }
             },
@@ -85,7 +85,7 @@ class Auth(Resource):
                 'description': 'Unauthenticated',
                 'examples': {
                     'application/json': {
-                        'error': Messages.unauthenticated
+                        'message': Messages.unauthenticated
                     }
                 }
             }
@@ -98,9 +98,9 @@ class Auth(Resource):
             if user:
                 return {'user': user.serialize()}, 200
             else:
-                return {'error': Messages.user_not_found}, 404
+                return {'message': Messages.user_not_found}, 404
         else:
-            return {'error': Messages.unauthenticated}, 401
+            return {'message': Messages.unauthenticated}, 401
     
     @swagger.doc({
         'tags': ['authentication'],
@@ -131,10 +131,10 @@ class Auth(Resource):
                 }
             },
             '400': {
-                'description': 'Parameters error',
+                'description': 'Parameters message',
                 'examples': {
                     'application/json': {
-                        'error': '<error>'
+                        'message': '<error>'
                     }
                 }
             },
@@ -142,7 +142,7 @@ class Auth(Resource):
                 'description': 'User not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.user_not_found
+                        'message': Messages.user_not_found
                     }
                 }
             }
@@ -153,7 +153,7 @@ class Auth(Resource):
             email = request.values['email']
             password = request.values['password']
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'message': str(e)}, 400
 
         user = User.query.filter_by(email=email).first()
         if user:
@@ -163,7 +163,7 @@ class Auth(Resource):
 
                 return {'user': user.serialize()}, 200
         else:
-            return {'error': Messages.user_not_found}, 404
+            return {'message': Messages.user_not_found}, 404
 
     @swagger.doc({
         'tags': ['authentication'],
@@ -211,7 +211,7 @@ class Auth(Resource):
                 'description': 'Parameters error',
                 'examples': {
                     'application/json': {
-                        'error': '<error>'
+                        'message': '<error>'
                     }
                 }
             },
@@ -219,7 +219,7 @@ class Auth(Resource):
                 'description': 'User already exist',
                 'examples': {
                     'application/json': {
-                        'error': Messages.user_already_exist
+                        'message': Messages.user_already_exist
                     }
                 }
             },
@@ -227,7 +227,7 @@ class Auth(Resource):
                 'description': 'Database error',
                 'examples': {
                     'application/json': {
-                        'error': '<error>'
+                        'message': '<error>'
                     }
                 }
             }
@@ -241,11 +241,11 @@ class Auth(Resource):
             first_name = request.values['first_name']
             last_name = request.values['last_name']
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'message': str(e)}, 400
 
         user = User.query.filter_by(email=email).first()
         if user:
-            return {'error': Messages.user_already_exist}, 409
+            return {'message': Messages.user_already_exist}, 409
             
         try:
             user = User(email=email, password=hash(password), first_name=first_name, last_name=last_name)
@@ -254,7 +254,7 @@ class Auth(Resource):
             return {'user': user.serialize()}, 200
 
         except Exception as e:
-            return {'error': str(e)}, 500
+            return {'message': str(e)}, 500
     
     @swagger.doc({
         'tags': ['authentication'],
@@ -272,7 +272,7 @@ class Auth(Resource):
                 'description': 'Unauthenticated',
                 'examples': {
                     'application/json': {
-                        'error': Messages.unauthenticated
+                        'message': Messages.unauthenticated
                     }
                 }
             }
@@ -284,7 +284,7 @@ class Auth(Resource):
             session['user_id'] = None
             return {'message': Messages.logged_out}, 200
         else:
-            return {'error': Messages.unauthenticated}, 401
+            return {'message': Messages.unauthenticated}, 401
 
 
 class Screen(Resource):
@@ -354,7 +354,7 @@ class Screen(Resource):
                 'description': 'Parameters error',
                 'examples': {
                     'application/json': {
-                        'error': '<error>'
+                        'message': '<error>'
                     }
                 }
             },
@@ -362,7 +362,7 @@ class Screen(Resource):
                 'description': 'Screen already exist',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screen_already_exist,
+                        'message': Messages.screen_already_exist,
                         'screen': ScreenModel.doc()
                     }
                 }
@@ -371,7 +371,7 @@ class Screen(Resource):
                 'description': 'Error on item creation',
                 'examples': {
                     'application/json': {
-                        'error': Messages.database_add_error
+                        'message': Messages.database_add_error
                     }
                 }
             }
@@ -388,7 +388,7 @@ class Screen(Resource):
         screen = ScreenModel.query.filter_by(name=screen_name, deleted=False).first()
         if screen:
             return {
-                    'error': Messages.screen_already_exist,
+                    'message': Messages.screen_already_exist,
                     'screen': screen.serialize()
                     }, 409
 
@@ -430,7 +430,7 @@ class ScreenItem(Resource):
                 'description': 'Screen not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screen_not_found
+                        'message': Messages.screen_not_found
                     }
                 }
             }
@@ -444,7 +444,7 @@ class ScreenItem(Resource):
                     }, 200
         else:
             return {
-                        'error': Messages.screen_not_found
+                        'message': Messages.screen_not_found
                     }, 404
 
     @swagger.doc({
@@ -500,7 +500,7 @@ class ScreenItem(Resource):
                 'description': 'Screen not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screen_not_found
+                        'message': Messages.screen_not_found
                     }
                 }
             }
@@ -543,7 +543,7 @@ class ScreenItem(Resource):
                 'description': 'Screen not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screen_not_found
+                        'message': Messages.screen_not_found
                     }
                 }
             }
@@ -626,7 +626,7 @@ class ScreenGroup(Resource):
                 'description': 'Group already exist',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screengroup_already_exist
+                        'message': Messages.screengroup_already_exist
                     }
                 }
             },
@@ -634,7 +634,7 @@ class ScreenGroup(Resource):
                 'description': 'Error on item creation',
                 'examples': {
                     'application/json': {
-                        'error': Messages.database_add_error
+                        'message': Messages.database_add_error
                     }
                 }
             }
@@ -685,7 +685,7 @@ class ScreenGroupItem(Resource):
                 'description': 'Group not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screengroup_not_found
+                        'message': Messages.screengroup_not_found
                     }
                 }
             }
@@ -745,7 +745,7 @@ class ScreenGroupItem(Resource):
                 'description': 'Group not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screengroup_not_found
+                        'message': Messages.screengroup_not_found
                     }
                 }
             }
@@ -787,7 +787,7 @@ class ScreenGroupItem(Resource):
                 'description': 'Group not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screengroup_not_found
+                        'message': Messages.screengroup_not_found
                     }
                 }
             }
@@ -841,7 +841,7 @@ class ScreenGroupItemMember(Resource):
                 'description': 'Parameters error',
                 'examples': {
                     'application/json': {
-                        'error': '<error>'
+                        'message': '<error>'
                     }
                 }
             },
@@ -849,7 +849,7 @@ class ScreenGroupItemMember(Resource):
                 'description': 'Group or screen not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screen_not_found
+                        'message': Messages.screen_not_found
                     }
                 }
             }
@@ -908,7 +908,7 @@ class ScreenGroupItemMember(Resource):
                 'description': 'Parameters error',
                 'examples': {
                     'application/json': {
-                        'error': '<error>'
+                        'message': '<error>'
                     }
                 }
             },
@@ -916,7 +916,7 @@ class ScreenGroupItemMember(Resource):
                 'description': 'Group or screen not found',
                 'examples': {
                     'application/json': {
-                        'error': Messages.screen_not_found
+                        'message': Messages.screen_not_found
                     }
                 }
             }
