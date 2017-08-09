@@ -46,7 +46,7 @@ class ScreenGroup(db.Model):
         self.active = active
 
     def serialize(self):
-        members = Screen.query.filter_by(group_id=self.id).all()
+        members = Screen.query.filter_by(group_id=self.id, deleted=False).all()
         members_list = [screen.serialize() for screen in members]
 
         return {
