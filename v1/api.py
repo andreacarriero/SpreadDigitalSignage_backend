@@ -385,6 +385,11 @@ class Screen(Resource):
         except Exception as e:
             return {'message': str(e)}, 400
 
+        if screen_group_id:
+            group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
+            if not group:
+                return{'message': Messages.screengroup_not_found}, 404
+
         screen = ScreenModel.query.filter_by(name=screen_name, deleted=False).first()
         if screen:
             return {
@@ -512,7 +517,14 @@ class ScreenItem(Resource):
             screen.name = request.values.get('name', screen.name)
             screen.location = request.values.get('location', screen.location)
             screen.active = request.values.get('active', screen.active)
-            screen.group_id = request.values.get('group_id', screen.group_id)
+            
+            screen_group_id = request.values.get('group_id', screen.group_id)
+            if screen_group_id:
+                group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
+                if not group:
+                    return {'message': Messages.screengroup_not_found}, 404
+            screen.group_id = screen_group_id
+            
             db.session.commit()
             return {'screen': screen.serialize()}, 200
         else:
