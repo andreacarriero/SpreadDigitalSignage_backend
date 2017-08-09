@@ -800,6 +800,7 @@ class ScreenGroupItem(Resource):
             screens = ScreenModel.query.filter_by(group_id=group.id, deleted=False).all()
             for screen in screens:
                 screen.active = False
+                screen.group_id = None
             db.session.commit()
             return {'group': group.serialize()}, 200
         else:
