@@ -341,6 +341,13 @@ class Screen(Resource):
                 'description': 'Group id where to add screen',
                 'in': 'formData',
                 'type': 'integer'
+            },
+            {
+                'name': 'config_id',
+                'required': False,
+                'description': 'Configuration ID',
+                'in': 'formData',
+                'type': 'integer'
             }
         ],
         'responses': {
@@ -384,13 +391,19 @@ class Screen(Resource):
             screen_name = request.values['name']
             screen_location = request.values.get('location', None)
             screen_group_id = request.values.get('group_id', None)
+            screen_config_id = request.values.get('config_id', None)
         except Exception as e:
             return {'message': str(e)}, 400
 
         if screen_group_id:
             group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
             if not group:
-                return{'message': Messages.screengroup_not_found}, 404
+                return {'message': Messages.screengroup_not_found}, 404
+
+        if screen_config_id:
+            config = ConfigurationModel.query.filter_by(id=screen_config_id, deleted=False).first()
+            if not config:
+                return {'message': Messages.config_not_found}, 404
 
         screen = ScreenModel.query.filter_by(name=screen_name, deleted=False).first()
         if screen:
@@ -401,6 +414,7 @@ class Screen(Resource):
 
         try:
             screen = ScreenModel(screen_name, screen_location, screen_group_id)
+            screen.config_id = screen_config_id
             db.session.add(screen)
             db.session.commit()
             return {
@@ -492,6 +506,13 @@ class ScreenItem(Resource):
                 'description': 'Group id where to add screen',
                 'in': 'formData',
                 'type': 'integer'
+            },
+            {
+                'name': 'config_id',
+                'required': False,
+                'description': 'Configuration ID',
+                'in': 'formData',
+                'type': 'integer'
             }
         ],
         'responses': {
@@ -520,12 +541,21 @@ class ScreenItem(Resource):
             screen.location = request.values.get('location', screen.location)
             screen.active = str2bool(request.values.get('active', screen.active))
             
+            screen_config_id = request.values.get('config_id', screen.config_id)
+            if screen_config_id:
+                config = ConfigurationModel.query.filter_by(id=screen_config_id, deleted=False).first()
+                if not config:
+                    return {'message': Messages.config_not_found}, 404
+                else:
+                    screen.config_id = screen_config_id            
+            
             screen_group_id = request.values.get('group_id', screen.group_id)
             if screen_group_id:
                 group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
                 if not group:
                     return {'message': Messages.screengroup_not_found}, 404
-            screen.group_id = screen_group_id
+                else:
+                    screen.group_id = screen_group_id
             
             db.session.commit()
             screen.push_on_the_fly()
@@ -626,6 +656,13 @@ class ScreenGroup(Resource):
                 'description': 'If group is active or inactive',
                 'in': 'formData',
                 'type': 'boolean'
+            },
+            {
+                'name': 'config_id',
+                'required': False,
+                'description': 'Configuration ID',
+                'in': 'formData',
+                'type': 'integer'
             }
         ],
         'responses': {
@@ -659,6 +696,12 @@ class ScreenGroup(Resource):
         name = request.values.get('name', str(uuid4()))
         location = request.values.get('location', None)
         active = str2bool(request.values.get('active', True))
+        config_id = request.values.get('config_id', None)
+
+        if config_id:
+            config = ConfigurationModel.query.filter_by(id=config_id, deleted=False).first()
+            if not config:
+                return {'message': Messages.config_not_found}, 404
 
         group = ScreenGroupModel.query.filter_by(name=name, deleted=False).first()
         if group:
@@ -666,6 +709,7 @@ class ScreenGroup(Resource):
 
         try:
             group = ScreenGroupModel(name=name, location=location, active=active)
+            group.config_id = config_id
             db.session.add(group)
             db.session.commit()
             return {'group': group.serialize()}, 200
@@ -745,6 +789,13 @@ class ScreenGroupItem(Resource):
                 'description': 'If group is active or inactive',
                 'in': 'formData',
                 'type': 'boolean'
+            },
+            {
+                'name': 'config_id',
+                'required': False,
+                'description': 'Configuration ID',
+                'in': 'formData',
+                'type': 'integer'
             }
         ],
         'responses': {
@@ -772,6 +823,15 @@ class ScreenGroupItem(Resource):
             group.name = request.values.get('name', group.name)
             group.location = request.values.get('location', group.location)
             group.active = str2bool(request.values.get('active', group.active))
+
+            config_id = request.values.get('config_id', None)
+            if config_id:
+                config = ConfigurationModel.query.filter_by(id=config_id, deleted=False).first()
+                if not config:
+                    return {'message': Messages.config_not_found}, 404
+                else:
+                    group.config_id = config_id
+
             db.session.commit()
             group.push_on_the_fly()
             return {'group': group.serialize()}, 200
@@ -1201,22 +1261,22 @@ class Configuration(Resource):
     })
     def post(self):
         newconf = ConfigurationModel()
-        newconf.head_active = request.values.get('head_active', newconf.head_active)
+        newconf.head_active = str2bool(request.values.get('head_active', newconf.head_active))
         newconf.head_height = request.values.get('head_height', newconf.head_height)
         newconf.head_fontSize = request.values.get('head_fontSize', newconf.head_fontSize)
         newconf.head_bgColor = request.values.get('head_bgColor', newconf.head_bgColor)
         newconf.head_textColor = request.values.get('head_textColor', newconf.head_textColor)
         newconf.head.borderColor = request.values.get('head_borderColor', newconf.head_borderColor)
-        newconf.head_logo_active = request.values.get('head_logo_active', newconf.head_logo_active)
+        newconf.head_logo_active = str2bool(request.values.get('head_logo_active', newconf.head_logo_active))
         newconf.head_logo_url = request.values.get('head_logo_url', newconf.head_logo_url)
-        newconf.head_content_active = request.values.get('head_content_active', newconf.head_content_active)
+        newconf.head_content_active = str2bool(request.values.get('head_content_active', newconf.head_content_active))
         newconf.head_content_text = request.values.get('head_content_text', newconf.head_content_text)
-        newconf.head_clock_active = request.values.get('head_clock_active', newconf.head_clock_active)
+        newconf.head_clock_active = str2bool(request.values.get('head_clock_active', newconf.head_clock_active))
         newconf.head_clock_textColor = request.values.get('head_clock_textColor', newconf.head.head_clock_textColor)
         newconf.head_clock_bgColor = request.values.get('head_clock_bgColor', newconf.head_clock_bgColor)
-        newconf.bottom_active = request.values.get('bottom_active', newconf.bottom_active)
+        newconf.bottom_active = str2bool(request.values.get('bottom_active', newconf.bottom_active))
         newconf.bottom_content = request.values.get('bottom_content', newconf.bottom_content)
-        newconf.bottom_marquee = request.values.get('bottom_marquee', newconf.bottom_marquee)
+        newconf.bottom_marquee = str2bool(request.values.get('bottom_marquee', newconf.bottom_marquee))
         newconf.bottom_height = request.values.get('bottom_height', newconf.bottom_height)
         newconf.bottom_fontSize = request.values.get('bottom_fontSize', newconf.bottom_fontSize)
         newconf.bottom_bgColor = request.values.get('bottom_bgColor', newconf.bottom_bgColor)
@@ -1508,22 +1568,22 @@ class ConfigurationItem(Resource):
         if not conf:
             return {'message': Messages.config_not_found}, 404
 
-        conf.head_active = request.values.get('head_active', conf.head_active)
+        conf.head_active = str2bool(request.values.get('head_active', conf.head_active))
         conf.head_height = request.values.get('head_height', conf.head_height)
         conf.head_fontSize = request.values.get('head_fontSize', conf.head_fontSize)
         conf.head_bgColor = request.values.get('head_bgColor', conf.head_bgColor)
         conf.head_textColor = request.values.get('head_textColor', conf.head_textColor)
         conf.head.borderColor = request.values.get('head_borderColor', conf.head_borderColor)
-        conf.head_logo_active = request.values.get('head_logo_active', conf.head_logo_active)
+        conf.head_logo_active = str2bool(request.values.get('head_logo_active', conf.head_logo_active))
         conf.head_logo_url = request.values.get('head_logo_url', conf.head_logo_url)
-        conf.head_content_active = request.values.get('head_content_active', conf.head_content_active)
+        conf.head_content_active = str2bool(request.values.get('head_content_active', conf.head_content_active))
         conf.head_content_text = request.values.get('head_content_text', conf.head_content_text)
-        conf.head_clock_active = request.values.get('head_clock_active', conf.head_clock_active)
+        conf.head_clock_active = str2bool(request.values.get('head_clock_active', conf.head_clock_active))
         conf.head_clock_textColor = request.values.get('head_clock_textColor', conf.head.head_clock_textColor)
         conf.head_clock_bgColor = request.values.get('head_clock_bgColor', conf.head_clock_bgColor)
-        conf.bottom_active = request.values.get('bottom_active', conf.bottom_active)
+        conf.bottom_active = str2bool(request.values.get('bottom_active', conf.bottom_active))
         conf.bottom_content = request.values.get('bottom_content', conf.bottom_content)
-        conf.bottom_marquee = request.values.get('bottom_marquee', conf.bottom_marquee)
+        conf.bottom_marquee = str2bool(request.values.get('bottom_marquee', conf.bottom_marquee))
         conf.bottom_height = request.values.get('bottom_height', conf.bottom_height)
         conf.bottom_fontSize = request.values.get('bottom_fontSize', conf.bottom_fontSize)
         conf.bottom_bgColor = request.values.get('bottom_bgColor', conf.bottom_bgColor)
