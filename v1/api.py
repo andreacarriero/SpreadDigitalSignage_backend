@@ -32,9 +32,9 @@ def render_docs():
     log.info('Rendering api docs')
     return '<!DOCTYPE html><html><head><title>API Docs</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"><style>body {margin: 0; padding: 0;}</style></head><body><redoc spec-url="spec.json"></redoc><script src="https://rebilly.github.io/ReDoc/releases/latest/redoc.min.js"> </script></body></html>'
 
-@app.route('/client')
-def get_client():
-    client = render_client()
+@app.route('/client/<id>')
+def get_client(id):
+    client = render_client(id)
     return client
 
 class Version(Resource):
@@ -527,6 +527,7 @@ class ScreenItem(Resource):
             screen.group_id = screen_group_id
             
             db.session.commit()
+            screen.push_on_the_fly()
             return {'screen': screen.serialize()}, 200
         else:
             return {'message': Messages.screen_not_found}, 404
@@ -771,6 +772,7 @@ class ScreenGroupItem(Resource):
             group.location = request.values.get('location', group.location)
             group.active = str2bool(request.values.get('active', group.active))
             db.session.commit()
+            group.push_on_the_fly()
             return {'group': group.serialize()}, 200
         else:
             return {'message': Messages.screengroup_not_found}, 404

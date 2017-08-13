@@ -38,12 +38,14 @@ class ScreenGroup(db.Model):
     name = db.Column(db.String(100))
     location = db.Column(db.String(100))
     active = db.Column(db.Boolean, default=True)
-    deleted = db.Column(db.Boolean, default=False) 
+    deleted = db.Column(db.Boolean, default=False)
+    config_v = db.Column(db.Integer) 
 
     def __init__(self, name, location, active=True):
         self.name = name
         self.location = location
         self.active = active
+        self.config_v = 0
 
     def serialize(self):
         members = Screen.query.filter_by(group_id=self.id, deleted=False).all()
@@ -57,6 +59,10 @@ class ScreenGroup(db.Model):
                     'deleted': self.deleted,
                     'members': members_list
                 }
+
+    def push_on_the_fly(self):
+        self.config_v = self.config_v + 1
+        db.session.commit()
 
     @staticmethod
     def doc():
@@ -77,12 +83,14 @@ class Screen(db.Model):
     group_id = db.Column(db.Integer(), db.ForeignKey('screen_group.id'))
     active = db.Column(db.Boolean, default=True)
     deleted = db.Column(db.Boolean, default=False)
+    config_v = db.Column(db.Integer)
 
     def __init__(self, name, location=None, group_id=None, active=True):
         self.name = name
         self.location = location
         self.group_id = group_id
         self.active = active
+        self.config_v = 0
 
     def serialize(self):
         return {
@@ -93,6 +101,10 @@ class Screen(db.Model):
                     'deleted': self.deleted,
                     'group_id': self.group_id
                 }
+
+    def push_on_the_fly(self):
+        self.config_v = self.config_v + 1
+        db.session.commit()
 
     @staticmethod
     def doc():
