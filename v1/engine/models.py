@@ -40,13 +40,26 @@ class ScreenGroup(db.Model):
     location = db.Column(db.String(100))
     active = db.Column(db.Boolean, default=True)
     deleted = db.Column(db.Boolean, default=False)
-    config_v = db.Column(db.Integer) 
+    config_v = db.Column(db.Integer)
+    config_id = db.Column(db.Integer(), db.ForeignKey('configuration.id'))
 
-    def __init__(self, name, location, active=True):
+    def __init__(self, name, location, active=True, config_id=None):
         self.name = name
         self.location = location
         self.active = active
-        self.config_v = 0
+        self.config_v = 1
+        self.config_id = config_id
+
+        #Create dummy configuration if config table is empty
+        try:
+            confs = Configuration.query.all()
+            if not len(confs) >= 1:
+                conf = Configuration()
+                db.session.add(conf)
+                db.session.commit()
+                self.config_id = conf.id
+        except Exception as e:
+            print(e)
 
     def serialize(self):
         members = Screen.query.filter_by(group_id=self.id, deleted=False).all()
@@ -58,6 +71,7 @@ class ScreenGroup(db.Model):
                     'location': self.location,
                     'active': self.active,
                     'deleted': self.deleted,
+                    'config_id': self.config_id,
                     'members': members_list
                 }
 
@@ -73,6 +87,7 @@ class ScreenGroup(db.Model):
                     'location': '<Group location>',
                     'active': 'True/False',
                     'deleted': 'True/False',
+                    'config_id': '<Config ID>',
                     'members': [Screen.doc()]
                 }
 
@@ -85,13 +100,26 @@ class Screen(db.Model):
     active = db.Column(db.Boolean, default=True)
     deleted = db.Column(db.Boolean, default=False)
     config_v = db.Column(db.Integer)
+    config_id = db.Column(db.Integer(), db.ForeignKey('configuration.id'))
 
-    def __init__(self, name, location=None, group_id=None, active=True):
+    def __init__(self, name, location=None, group_id=None, active=True, config_id=None):
         self.name = name
         self.location = location
         self.group_id = group_id
         self.active = active
-        self.config_v = 0
+        self.config_v = 1
+        self.config_id = config_id
+
+        #Create dummy configuration if config table is empty
+        try:
+            confs = Configuration.query.all()
+            if not len(confs) >= 1:
+                conf = Configuration()
+                db.session.add(conf)
+                db.session.commit()
+                self.config_id = conf.id
+        except Exception as e:
+            print(e)
 
     def serialize(self):
         return {
@@ -100,7 +128,8 @@ class Screen(db.Model):
                     'location': self.location,
                     'active': self.active,
                     'deleted': self.deleted,
-                    'group_id': self.group_id
+                    'group_id': self.group_id,
+                    'config_id': self.config_id
                 }
 
     def push_on_the_fly(self):
@@ -119,7 +148,8 @@ class Screen(db.Model):
                     'location': '<Screen location>',
                     'active': 'True/False',
                     'deleted': 'True/False',
-                    'group_id': '<Group id>'
+                    'group_id': '<Group id>',
+                    'config_id': '<Config id>'
                 }
 
 class Configuration(db.Model):
@@ -158,7 +188,7 @@ class Configuration(db.Model):
                     deleted = False,
                     head_active = True,
                     head_height = '70px',
-                    head_fontSize = '3em',
+                    head_fontSize = '2em',
                     head_bgColor = '#003459',
                     head_textColor = '#fff',
                     head_borderColor = '#fff',
@@ -169,7 +199,7 @@ class Configuration(db.Model):
                     head_clock_active = True,
                     head_clock_textColor = '#fff',
                     head_clock_bgColor = '#003459',
-                    bottom_active = False,
+                    bottom_active = True,
                     bottom_content = None,
                     bottom_marquee = False,
                     bottom_height = '70px',
@@ -204,8 +234,8 @@ class Configuration(db.Model):
         self.bottom_textColor = bottom_textColor
         self.body_background_bgColor = body_background_bgColor
         self.body_background_bgImage = body_background_bgImage
-        self.body_content_fixedContent = body_content_fixedContent
-        self.body_content_columns = body_content_columns
+        self.body_content_fixedContent = str(body_content_fixedContent)
+        self.body_content_columns = str(body_content_columns)
 
     def serialize(self):
         return {

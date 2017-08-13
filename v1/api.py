@@ -1533,6 +1533,15 @@ class ConfigurationItem(Resource):
         conf.body_content_fixedContent = request.values.get('body_content_fixedContent', conf.body_content_fixedContent)
         conf.body_content_columns = reques.values.get('body_content_columns', conf.body_content_columns)
 
+        #Update all screens
+        screens = ScreenModel.query.filter_by(conf_id=conf.id, deleted=False).all()
+        for screen in screens:
+            screen.config_v = screem.config_v + 1
+        
+        groups = ScreenGroupModel.query.filter_by(conf_id=conf.id, deleted=False).all()
+        for group in groups:
+            group.config_v = group.config_v + 1
+
         try:
             db.session.commit()
             
