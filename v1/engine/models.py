@@ -124,6 +124,8 @@ class Screen(db.Model):
 
 class Configuration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    deleted = db.Column(db.Boolean)
+
     head_active = db.Column(db.Boolean)
     head_height = db.Column(db.String(10))
     head_fontSize = db.Column(db.String(10))
@@ -153,6 +155,7 @@ class Configuration(db.Model):
 
     def __init__(
                     self,
+                    deleted = False,
                     head_active = True,
                     head_height = '70px',
                     head_fontSize = '3em',
@@ -178,6 +181,7 @@ class Configuration(db.Model):
                     body_content_fixedContent = [],
                     body_content_columns = []
                 ):
+        self.deleted = deleted
         self.head_active = head_active
         self.head_height = head_height
         self.head_fontSize = head_fontSize
@@ -303,7 +307,7 @@ class Configuration(db.Model):
                                     {
                                         'borderColor': '#fff',
                                         'textColor': '#fff',
-                                        'html': '<h1>Titolo</h1><h2>Sottotitolo</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam lacinia enim fermentum metus venenatis ultrices.</p>'
+                                        'html': '<h1>Titolo</h1><h2>Sottotitolo</h2>'
                                     }                                  
                                 ]
                             }
