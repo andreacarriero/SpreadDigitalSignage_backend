@@ -9,6 +9,7 @@ from v1.engine.messages import Messages
 from v1.engine.models import User
 from v1.engine.models import Screen as ScreenModel
 from v1.engine.models import ScreenGroup as ScreenGroupModel
+from v1.engine.models import Configuration as ConfigurationModel
 
 from util.db import db
 from util.str2bool import str2bool
@@ -955,6 +956,28 @@ class ScreenGroupItemMember(Resource):
         else:
             return {'message': Messages.screen_not_found}, 404
 
+class Configuration(Resource):
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Get all configurations',
+        'responses': {
+            '200': {
+                'description': 'Configuration list',
+                'examples': {
+                    'application/json': {
+                        'configurations': [
+                            ConfigurationModel.doc()
+                        ]
+                    }
+                }
+            }
+        }
+    })
+    def get(self):
+        configurations = ConfigurationModel.query.filter_by(deleted=False).all()
+        configurations_list = [conf.serialize() for conf in configurations]
+        return {'configurations': configurations_list}, 200
+
 
 api.add_resource(Version, '/version')
 api.add_resource(Auth, '/auth')
@@ -963,3 +986,4 @@ api.add_resource(ScreenItem, '/screen/<int:screen_id>')
 api.add_resource(ScreenGroup, '/groups')
 api.add_resource(ScreenGroupItem, '/group/<int:group_id>')
 api.add_resource(ScreenGroupItemMember, '/group/<int:group_id>/member')
+api.add_resource(Configuration, '/configurations')
