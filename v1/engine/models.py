@@ -1,5 +1,6 @@
 from util.db import db
 from uuid import uuid4
+import ast
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -104,6 +105,10 @@ class Screen(db.Model):
 
     def push_on_the_fly(self):
         self.config_v = self.config_v + 1
+        if self.group_id:
+            group = ScreenGroup.query.filter_by(id=self.group_id).first()
+            if group:
+                group.push_on_the_fly()
         db.session.commit()
 
     @staticmethod
@@ -115,4 +120,192 @@ class Screen(db.Model):
                     'active': 'True/False',
                     'deleted': 'True/False',
                     'group_id': '<Group id>'
+                }
+
+class Configuration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    head_active = db.Column(db.Boolean)
+    head_height = db.Column(db.String(10))
+    head_fontSize = db.Column(db.String(10))
+    head_bgColor = db.Column(db.String(100))
+    head_textColor = db.Column(db.String(100))
+    head_borderColor = db.Column(db.String(100))
+    head_logo_active = db.Column(db.Boolean)
+    head_logo_url = db.Column(db.String(1000))
+    head_content_active = db.Column(db.Boolean)
+    head_content_text = db.Column(db.String(1000))
+    head_clock_active = db.Column(db.Boolean)
+    head_clock_textColor = db.Column(db.String(100))
+    head_clock_bgColor = db.Column(db.String(100))
+
+    bottom_active = db.Column(db.Boolean)
+    bottom_content = db.Column(db.String(5000))
+    bottom_marquee = db.Column(db.Boolean)
+    bottom_height = db.Column(db.String(10))
+    bottom_fontSize = db.Column(db.String(10))
+    bottom_bgColor = db.Column(db.String(100))
+    bottom_textColor = db.Column(db.String(100))
+
+    body_background_bgColor = db.Column(db.String(100))
+    body_background_bgImage = db.Column(db.String(2000))
+    body_content_fixedContent = db.Column(db.String())
+    body_content_columns = db.Column(db.String())
+
+    def __init__(
+                    self,
+                    head_active = True,
+                    head_height = '70px',
+                    head_fontSize = '3em',
+                    head_bgColor = '#003459',
+                    head_textColor = '#fff',
+                    head_borderColor = '#fff',
+                    head_logo_active = False,
+                    head_logo_url = None,
+                    head_content_active = True,
+                    head_content_text = 'Digital Signage',
+                    head_clock_active = True,
+                    head_clock_textColor = '#fff',
+                    head_clock_bgColor = '#003459',
+                    bottom_active = False,
+                    bottom_content = None,
+                    bottom_marquee = False,
+                    bottom_height = '70px',
+                    bottom_fontSize = '2em',
+                    bottom_bgColor = '#003459',
+                    bottom_textColor = '#fff',
+                    body_background_bgColor = '#00A8E8',
+                    body_background_bgImage = None,
+                    body_content_fixedContent = [],
+                    body_content_columns = []
+                ):
+        self.head_active = head_active
+        self.head_height = head_height
+        self.head_fontSize = head_fontSize
+        self.head_bgColor = head_bgColor
+        self.head_textColor = head_textColor
+        self.head_borderColor = head_borderColor
+        self.head_logo_active = head_logo_active
+        self.head_logo_url = head_logo_url
+        self.head_content_active = head_content_active
+        self.head_content_text = head_content_text
+        self.head_clock_active = head_clock_active
+        self.head_clock_textColor = head_clock_textColor
+        self.head_clock_bgColor = head_clock_bgColor
+        self.bottom_active = bottom_active
+        self.bottom_content = bottom_content
+        self.bottom_marquee = bottom_marquee
+        self.bottom_height = bottom_height
+        self.bottom_fontSize = bottom_fontSize
+        self.bottom_bgColor = bottom_bgColor
+        self.bottom_textColor = bottom_textColor
+        self.body_background_bgColor = body_background_bgColor
+        self.body_background_bgImage = body_background_bgImage
+        self.body_content_fixedContent = body_content_fixedContent
+        self.body_content_columns = body_content_columns
+
+    def serialize(self):
+        return {
+                'head': {
+                            'active': self.head_active,
+                            'height': self.head_height,
+                            'fontSize': self.head_fontSize,
+                            'bgColor': self.head_bgColor,
+                            'textColor': self.head_textColor,
+                            'borderColor': self.head_borderColor,
+                            'logo': {
+                                'active': self.head_logo_active,
+                                'url': self.head_logo_url
+                            },
+                            'content': {
+                                'active': self.head_content_active,
+                                'text': self.head_content_text
+                            },
+                            'clock': {
+                                'active': self.head_clock_active,
+                                'textColor': self.head_clock_textColor,
+                                'bgColor': self.head_clock_bgColor
+                            }
+                        },
+                'bottom': {
+                            'active': self.bottom_active,
+                            'content': self.bottom_content,
+                            'marquee': self.bottom_marquee,
+
+                            'height': self.bottom_height,
+                            'fontSize': self.bottom_fontSize,
+                            'bgColor': self.bottom_bgColor,
+                            'textColor': self.bottom_textColor
+                },
+                'body': {   
+                            'background': {
+                                'bgColor': self.body_background_bgColor,
+                                'bgImage': self.body_background_bgImage
+                            },
+                            'content': {
+                                'fixedContent': ast.literal_eval(self.body_content_fixedContent),
+
+                                'columns': ast.literal_eval(self.body_content_columns)
+                            }
+                        }
+                }
+
+    @staticmethod
+    def doc():
+        return {
+                'head': {
+                            'active': True,
+                            'height': '70px',
+                            'fontSize': '3em',
+                            'bgColor': '#003459',
+                            'textColor': '#fff',
+                            'borderColor': '#fff',
+                            'logo': {
+                                'active': True,
+                                'url': 'logo.png'
+                            },
+                            'content': {
+                                'active': False,
+                                'text': 'Digital Signage'
+                            },
+                            'clock': {
+                                'active': True,
+                                'textColor': '#fff',
+                                'bgColor': '#003459'
+                            }
+                        },
+                'bottom': {
+                            'active': True,
+                            'content': 'Lorem ipsum dolor sit amet',
+                            'marquee': True,
+                            'height': '70px',
+                            'fontSize': '2em',
+                            'bgColor': '#003459',
+                            'textColor': '#fff'
+                },
+                'body': {   
+                            'background': {
+                                'bgColor': '#00A8E8',
+                                'bgImage': None
+                            },
+                            'content': {
+                                'fixedContent': [
+                                    {
+                                        'active': True,
+                                        'bgColor': '#007EA7',
+                                        'textColor': '#fff',
+                                        'borderColor': '#fff',
+                                        'fontSize': '3em',
+                                        'marquee': False,
+                                        'content': 'Riunione ore 10 sala 210A'
+                                    }
+                                ],
+                                'columns': [
+                                    {
+                                        'borderColor': '#fff',
+                                        'textColor': '#fff',
+                                        'html': '<h1>Titolo</h1><h2>Sottotitolo</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam lacinia enim fermentum metus venenatis ultrices.</p>'
+                                    }                                  
+                                ]
+                            }
+                        }
                 }
