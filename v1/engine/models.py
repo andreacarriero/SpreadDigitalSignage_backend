@@ -209,6 +209,8 @@ class Configuration(db.Model):
 
     def serialize(self):
         return {
+                'id': self.id,
+                'deleted': self.deleted,
                 'head': {
                             'active': self.head_active,
                             'height': self.head_height,
@@ -254,8 +256,10 @@ class Configuration(db.Model):
                 }
 
     @staticmethod
-    def doc():
+    def doc(deleted=False):
         return {
+                'id': 0,
+                'deleted': deleted,
                 'head': {
                             'active': True,
                             'height': '70px',
@@ -307,7 +311,7 @@ class Configuration(db.Model):
                                     {
                                         'borderColor': '#fff',
                                         'textColor': '#fff',
-                                        'html': '<h1>Titolo</h1><h2>Sottotitolo</h2>'
+                                        'html': 'bla bla'
                                     }                                  
                                 ]
                             }

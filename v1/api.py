@@ -978,6 +978,623 @@ class Configuration(Resource):
         configurations_list = [conf.serialize() for conf in configurations]
         return {'configurations': configurations_list}, 200
 
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Add new configuration',
+        'parameters': [
+            {
+                'name': 'head_active',
+                'required': False,
+                'description': 'Is head bar active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_height',
+                'required': False,
+                'description': 'Height with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_fontSize',
+                'required': False,
+                'description': 'Font size with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_borderColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_logo_active',
+                'required': False,
+                'description': '',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_logo_url',
+                'required': False,
+                'description': 'Head bar logo url',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_content_active',
+                'required': False,
+                'description': 'Has head bar text content?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_content_text',
+                'required': False,
+                'description': 'Head bar text',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_clock_active',
+                'required': False,
+                'description': 'Is clock in the head bar active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_clock_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_clock_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_clock_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_active',
+                'required': False,
+                'description': 'Is bottom bar active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'bottom_content',
+                'required': False,
+                'description': 'Bottom bar text',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_marquee',
+                'required': False,
+                'description': 'Does bottom bar text scroll with marquee?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'bottom_height',
+                'required': False,
+                'description': 'Bottom bar height with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_fontSize',
+                'required': False,
+                'description': 'Bottom bar font size with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_background_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_background_bgImage',
+                'required': False,
+                'description': 'Image url',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_content_fixedContent',
+                'required': False,
+                'description': """"
+                                    Fixed bars list.
+                                    Example: [
+                                                {
+                                                    'active': true,
+                                                    'bgColor': '#007EA7',
+                                                    'textColor': '#fff',
+                                                    'borderColor': '#fff',
+                                                    'fontSize': '3em',
+                                                    'marquee': false,
+                                                    'content': 'Riunione ore 10 sala 210A'
+                                                }
+                                            ]
+                                """,
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_content_columns',
+                'required': False,
+                'description': """"
+                                    Columns list.
+                                    Example: [
+                                                {
+                                                    'borderColor': '#fff',
+                                                    'textColor': '#fff',
+                                                    'html': 'bla bla'
+                                                }
+                                            ]
+                                """,
+                'in': 'formData',
+                'type': 'string'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Configuration added',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '500': {
+                'description': 'Adding error',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.database_add_error
+                    }
+                }
+            }
+        }
+    })
+    def post(self):
+        newconf = ConfigurationModel()
+        newconf.head_active = request.values.get('head_active', newconf.head_active)
+        newconf.head_height = request.values.get('head_height', newconf.head_height)
+        newconf.head_fontSize = request.values.get('head_fontSize', newconf.head_fontSize)
+        newconf.head_bgColor = request.values.get('head_bgColor', newconf.head_bgColor)
+        newconf.head_textColor = request.values.get('head_textColor', newconf.head_textColor)
+        newconf.head.borderColor = request.values.get('head_borderColor', newconf.head_borderColor)
+        newconf.head_logo_active = request.values.get('head_logo_active', newconf.head_logo_active)
+        newconf.head_logo_url = request.values.get('head_logo_url', newconf.head_logo_url)
+        newconf.head_content_active = request.values.get('head_content_active', newconf.head_content_active)
+        newconf.head_content_text = request.values.get('head_content_text', newconf.head_content_text)
+        newconf.head_clock_active = request.values.get('head_clock_active', newconf.head_clock_active)
+        newconf.head_clock_textColor = request.values.get('head_clock_textColor', newconf.head.head_clock_textColor)
+        newconf.head_clock_bgColor = request.values.get('head_clock_bgColor', newconf.head_clock_bgColor)
+        newconf.bottom_active = request.values.get('bottom_active', newconf.bottom_active)
+        newconf.bottom_content = request.values.get('bottom_content', newconf.bottom_content)
+        newconf.bottom_marquee = request.values.get('bottom_marquee', newconf.bottom_marquee)
+        newconf.bottom_height = request.values.get('bottom_height', newconf.bottom_height)
+        newconf.bottom_fontSize = request.values.get('bottom_fontSize', newconf.bottom_fontSize)
+        newconf.bottom_bgColor = request.values.get('bottom_bgColor', newconf.bottom_bgColor)
+        newconf.bottom_textColor = request.values.get('bottom_textColor', newconf.bottom_textColor)
+        newconf.body_background_bgColor = request.values.get('body_background_bgColor', newconf.body_background_bgColor)
+        newconf.body_background_bgImage = request.values.get('body_background_bgImage', newconf.body_background_bgImage)
+        newconf.body_content_fixedContent = request.values.get('body_content_fixedContent', newconf.body_content_fixedContent)
+        newconf.body_content_columns = reques.values.get('body_content_columns', newconf.body_content_columns)
+
+        try:
+            db.session.add(newconf)
+            db.session.commit()
+            
+            return {'configuration': newconf.serialize()}, 200
+        
+        except Exception as e:
+            return {'message': Messages.database_add_error}, 500
+
+class ConfigurationItem(Resource):
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Get specific configuration',
+        'parameters': [
+            {
+                'name': 'conf_id',
+                'required': True,
+                'description': 'Configuration ID',
+                'in': 'path',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Configuration',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            }
+        }
+    })
+    def get(self, conf_id):
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if conf:
+            return {'configuration': conf.serialize()}, 200
+        else:
+            return {'message': Messages.config_not_found}, 404
+
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Edit configuration',
+        'parameters': [
+            {
+                'name': 'head_active',
+                'required': False,
+                'description': 'Is head bar active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_height',
+                'required': False,
+                'description': 'Height with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_fontSize',
+                'required': False,
+                'description': 'Font size with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_borderColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_logo_active',
+                'required': False,
+                'description': '',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_logo_url',
+                'required': False,
+                'description': 'Head bar logo url',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_content_active',
+                'required': False,
+                'description': 'Has head bar text content?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_content_text',
+                'required': False,
+                'description': 'Head bar text',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_clock_active',
+                'required': False,
+                'description': 'Is clock in the head bar active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'head_clock_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_clock_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'head_clock_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_active',
+                'required': False,
+                'description': 'Is bottom bar active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'bottom_content',
+                'required': False,
+                'description': 'Bottom bar text',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_marquee',
+                'required': False,
+                'description': 'Does bottom bar text scroll with marquee?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'bottom_height',
+                'required': False,
+                'description': 'Bottom bar height with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_fontSize',
+                'required': False,
+                'description': 'Bottom bar font size with measure unit',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'bottom_textColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_background_bgColor',
+                'required': False,
+                'description': 'Hex or rgb() color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_background_bgImage',
+                'required': False,
+                'description': 'Image url',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_content_fixedContent',
+                'required': False,
+                'description': """"
+                                    Fixed bars list.
+                                    Example: [
+                                                {
+                                                    'active': true,
+                                                    'bgColor': '#007EA7',
+                                                    'textColor': '#fff',
+                                                    'borderColor': '#fff',
+                                                    'fontSize': '3em',
+                                                    'marquee': false,
+                                                    'content': 'Riunione ore 10 sala 210A'
+                                                }
+                                            ]
+                                """,
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'body_content_columns',
+                'required': False,
+                'description': """"
+                                    Columns list.
+                                    Example: [
+                                                {
+                                                    'borderColor': '#fff',
+                                                    'textColor': '#fff',
+                                                    'html': 'bla bla'
+                                                }
+                                            ]
+                                """,
+                'in': 'formData',
+                'type': 'string'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Configuration added',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            },
+            '500': {
+                'description': 'Update error',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.database_update_error
+                    }
+                }
+            }
+        }
+    })
+    def put(self, conf_id):
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message': Messages.config_not_found}, 404
+
+        conf.head_active = request.values.get('head_active', conf.head_active)
+        conf.head_height = request.values.get('head_height', conf.head_height)
+        conf.head_fontSize = request.values.get('head_fontSize', conf.head_fontSize)
+        conf.head_bgColor = request.values.get('head_bgColor', conf.head_bgColor)
+        conf.head_textColor = request.values.get('head_textColor', conf.head_textColor)
+        conf.head.borderColor = request.values.get('head_borderColor', conf.head_borderColor)
+        conf.head_logo_active = request.values.get('head_logo_active', conf.head_logo_active)
+        conf.head_logo_url = request.values.get('head_logo_url', conf.head_logo_url)
+        conf.head_content_active = request.values.get('head_content_active', conf.head_content_active)
+        conf.head_content_text = request.values.get('head_content_text', conf.head_content_text)
+        conf.head_clock_active = request.values.get('head_clock_active', conf.head_clock_active)
+        conf.head_clock_textColor = request.values.get('head_clock_textColor', conf.head.head_clock_textColor)
+        conf.head_clock_bgColor = request.values.get('head_clock_bgColor', conf.head_clock_bgColor)
+        conf.bottom_active = request.values.get('bottom_active', conf.bottom_active)
+        conf.bottom_content = request.values.get('bottom_content', conf.bottom_content)
+        conf.bottom_marquee = request.values.get('bottom_marquee', conf.bottom_marquee)
+        conf.bottom_height = request.values.get('bottom_height', conf.bottom_height)
+        conf.bottom_fontSize = request.values.get('bottom_fontSize', conf.bottom_fontSize)
+        conf.bottom_bgColor = request.values.get('bottom_bgColor', conf.bottom_bgColor)
+        conf.bottom_textColor = request.values.get('bottom_textColor', conf.bottom_textColor)
+        conf.body_background_bgColor = request.values.get('body_background_bgColor', conf.body_background_bgColor)
+        conf.body_background_bgImage = request.values.get('body_background_bgImage', conf.body_background_bgImage)
+        conf.body_content_fixedContent = request.values.get('body_content_fixedContent', conf.body_content_fixedContent)
+        conf.body_content_columns = reques.values.get('body_content_columns', conf.body_content_columns)
+
+        try:
+            db.session.commit()
+            
+            return {'configuration': conf.serialize()}, 200
+        
+        except Exception as e:
+            return {'message': Messages.database_update_error}, 500
+
+
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Delete specific configuration',
+        'parameters': [
+            {
+                'name': 'conf_id',
+                'required': True,
+                'description': 'Configuration ID',
+                'in': 'path',
+                'type': 'integer'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Configuration deleted',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc(deleted=True)
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            },
+            '500': {
+                'description': 'Error on deleting configuration',
+                'examples': {
+                    'application/json': {
+                        'error': Messages.database_update_error
+                    }
+                }
+            }
+        }
+    })
+    def delete(self, conf_id):
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message': Messages.config_not_found}, 404
+
+        conf.deleted = True
+
+        try:
+            db.session.commit()
+            return {'configuration': conf.serialize()}, 200
+        
+        except Exception as e:
+            return {'message': Messages.database_update_error}, 500        
+
 
 api.add_resource(Version, '/version')
 api.add_resource(Auth, '/auth')
@@ -987,3 +1604,4 @@ api.add_resource(ScreenGroup, '/groups')
 api.add_resource(ScreenGroupItem, '/group/<int:group_id>')
 api.add_resource(ScreenGroupItemMember, '/group/<int:group_id>/member')
 api.add_resource(Configuration, '/configurations')
+api.add_resource(ConfigurationItem, '/configuration/<int:conf_id>')
