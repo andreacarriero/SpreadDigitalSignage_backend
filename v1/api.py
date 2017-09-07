@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, session, url_for, redirect, jsonify
+from flask import Blueprint, render_template, request, session, url_for, redirect, jsonify, abort
 from flask_restful_swagger_2 import Api, Resource, swagger
 from passlib.hash import pbkdf2_sha256
 from uuid import uuid4
+from functools import wraps
 
 import v1.engine
 from v1.engine.render_client import render_client
@@ -24,11 +25,30 @@ apiVersion = '1.0'
 app = Blueprint('apiv1', __name__)
 api = Api(app, api_version=apiVersion, base_path='/api/v1', api_spec_url='/spec')
 
+##########
+API_KEY = '12345'
+API_SECRET = '67890'
+##########
+
 #Auth
 def hash(password):
     return pbkdf2_sha256.encrypt(password, rounds=20000, salt_size=16)
 
+def token_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kws):
+        if request.headers.get('X-Api-Key') == API_KEY and request.headers.get('X-Api-Secret') == API_SECRET:
+            pass
+        else:
+            #return jsonify(message='Unauthorized'), 401
+            abort(401)
+
+        return f(*args, **kws)
+    return decorated_function
+
+
 @app.route('/docs')
+@token_required
 def render_docs():
     log.info('Rendering api docs')
     return '<!DOCTYPE html><html><head><title>API Docs</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"><style>body {margin: 0; padding: 0;}</style></head><body><redoc spec-url="spec.json"></redoc><script src="https://rebilly.github.io/ReDoc/releases/latest/redoc.min.js"> </script></body></html>'
@@ -54,6 +74,7 @@ class Version(Resource):
             }
         }
     })
+    @token_required
     def get(self):
         return {
                 'engine_version': v1.engine.engine_version,
@@ -305,6 +326,7 @@ class Screen(Resource):
             }
         }
     })
+    @token_required
     def get(self):
         screens = ScreenModel.query.filter_by(deleted=False).all()
         screens_list = [screen.serialize() for screen in screens]
@@ -386,6 +408,7 @@ class Screen(Resource):
             }
         }
     })
+    @token_required
     def post(self):
         try:
             screen_name = request.values['name']
@@ -457,6 +480,7 @@ class ScreenItem(Resource):
             }
         }
     })
+    @token_required
     def get(self, screen_id):
         screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
@@ -534,6 +558,7 @@ class ScreenItem(Resource):
             }
         }
     })
+    @token_required
     def put(self, screen_id):
         screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
@@ -594,6 +619,7 @@ class ScreenItem(Resource):
             }
         }
     })
+    @token_required
     def delete(self, screen_id):
         screen = ScreenModel.query.filter_by(id=screen_id, deleted=False).first()
         if screen:
@@ -620,6 +646,7 @@ class ScreenGroup(Resource):
             }
         }
     })
+    @token_required
     def get(self):
         groups = ScreenGroupModel.query.filter_by(deleted=False).all()
         groups_list = [group.serialize() for group in groups]
@@ -692,6 +719,7 @@ class ScreenGroup(Resource):
             }
         }
     })
+    @token_required
     def post(self):
         name = request.values.get('name', str(uuid4()))
         location = request.values.get('location', None)
@@ -750,6 +778,7 @@ class ScreenGroupItem(Resource):
             }
         }
     })
+    @token_required
     def get(self, group_id):
         group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
         if group:
@@ -816,7 +845,8 @@ class ScreenGroupItem(Resource):
                 }
             }
         }
-    })    
+    })
+    @token_required    
     def put(self, group_id):
         group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
         if group:
@@ -869,6 +899,7 @@ class ScreenGroupItem(Resource):
             }
         }
     })
+    @token_required
     def delete(self, group_id):
         group = ScreenGroupModel.query.filter_by(id=group_id, deleted=False).first()
         if group:
@@ -931,6 +962,7 @@ class ScreenGroupItemMember(Resource):
             }
         }
     })
+    @token_required
     def put(self, group_id):
         try:
             screen_id = request.values['screen_id']
@@ -997,7 +1029,8 @@ class ScreenGroupItemMember(Resource):
                 }
             }
         }
-    })    
+    })
+    @token_required    
     def delete(self, group_id):
         try:
             screen_id = request.values['screen_id']
@@ -1033,6 +1066,7 @@ class Configuration(Resource):
             }
         }
     })
+    @token_required
     def get(self):
         configurations = ConfigurationModel.query.filter_by(deleted=False).all()
         configurations_list = [conf.serialize() for conf in configurations]
@@ -1259,6 +1293,7 @@ class Configuration(Resource):
             }
         }
     })
+    @token_required
     def post(self):
         newconf = ConfigurationModel()
         newconf.head_active = str2bool(request.values.get('head_active', newconf.head_active))
@@ -1327,6 +1362,7 @@ class ConfigurationItem(Resource):
             }
         }
     })
+    @token_required
     def get(self, conf_id):
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
         if conf:
@@ -1563,6 +1599,7 @@ class ConfigurationItem(Resource):
             }
         }
     })
+    @token_required
     def put(self, conf_id):
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
         if not conf:
@@ -1650,6 +1687,7 @@ class ConfigurationItem(Resource):
             }
         }
     })
+    @token_required
     def delete(self, conf_id):
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
         if not conf:
