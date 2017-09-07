@@ -7,7 +7,7 @@ RUN rm -r /usr/lib/python*/ensurepip
 RUN pip3 install --upgrade pip setuptools
 RUN rm -r /root/.cache
 
-ADD . /opt/app
+COPY . /opt/app
 RUN pip3 install --upgrade pip
 RUN pip3 install -r /opt/app/requirements.txt
 WORKDIR /opt/app
