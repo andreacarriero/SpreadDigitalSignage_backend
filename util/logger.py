@@ -1,8 +1,8 @@
 import logging, sys
 
-#file_handler = logging.FileHandler(filename='data/app.log')
+file_handler = logging.FileHandler(filename='data/app.log')
 stdout_handler = logging.StreamHandler(sys.stdout)
-handlers = [stdout_handler]
+handlers = [file_handler, stdout_handler]
 
 logging.basicConfig(
     level=logging.DEBUG, 
