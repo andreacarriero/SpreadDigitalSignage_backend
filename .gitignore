@@ -1,7 +1,6 @@
 __pycache__/
 venv/
 migrations/
-database.db
-app.log
+data/
 
 frontend/
