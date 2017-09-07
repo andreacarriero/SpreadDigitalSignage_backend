@@ -8,6 +8,7 @@ RUN pip3 install --upgrade pip setuptools
 RUN rm -r /root/.cache
 
 COPY . /opt/app
+RUN chown -R 1000:1000 /opt/app
 RUN pip3 install --upgrade pip
 RUN pip3 install -r /opt/app/requirements.txt
 WORKDIR /opt/app
