@@ -414,6 +414,7 @@ class Screen(Resource):
             screen_location = request.values.get('location', None)
             screen_group_id = request.values.get('group_id', None)
             screen_config_id = request.values.get('config_id', None)
+            screen_active = str2bool(request.values.get('active', False))
         except Exception as e:
             return {'message': str(e)}, 400
 
@@ -435,7 +436,7 @@ class Screen(Resource):
                     }, 409
 
         try:
-            screen = ScreenModel(screen_name, screen_location, screen_group_id)
+            screen = ScreenModel(screen_name, screen_location, screen_group_id, active=screen_active)
             screen.config_id = screen_config_id
             db.session.add(screen)
             db.session.commit()
