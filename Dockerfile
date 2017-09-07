@@ -11,7 +11,6 @@ ADD . /opt/app
 RUN pip3 install --upgrade pip
 RUN pip3 install -r /opt/app/requirements.txt
 WORKDIR /opt/app
-#RUN touch /opt/app/data/app.log
 CMD python3 server.py
 
 EXPOSE 5000

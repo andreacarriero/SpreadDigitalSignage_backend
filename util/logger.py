@@ -1,5 +1,6 @@
-import logging, sys
+import logging, sys, os
 
+os.system('touch data/app.log')
 file_handler = logging.FileHandler(filename='data/app.log')
 stdout_handler = logging.StreamHandler(sys.stdout)
 handlers = [file_handler, stdout_handler]
