@@ -155,6 +155,7 @@ class Screen(db.Model):
 class Configuration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     deleted = db.Column(db.Boolean)
+    description = db.Column(db.String(2000))
 
     head_active = db.Column(db.Boolean)
     head_height = db.Column(db.String(10))
@@ -186,6 +187,7 @@ class Configuration(db.Model):
     def __init__(
                     self,
                     deleted = False,
+                    description = None,
                     head_active = True,
                     head_height = '70px',
                     head_fontSize = '2em',
@@ -212,6 +214,7 @@ class Configuration(db.Model):
                     body_content_columns = []
                 ):
         self.deleted = deleted
+        self.description = description
         self.head_active = head_active
         self.head_height = head_height
         self.head_fontSize = head_fontSize
@@ -241,6 +244,7 @@ class Configuration(db.Model):
         return {
                 'id': self.id,
                 'deleted': self.deleted,
+                'description': self.description,
                 'head': {
                             'active': self.head_active,
                             'height': self.head_height,
@@ -290,6 +294,7 @@ class Configuration(db.Model):
         return {
                 'id': 0,
                 'deleted': deleted,
+                'description': 'Description...',
                 'head': {
                             'active': True,
                             'height': '70px',
