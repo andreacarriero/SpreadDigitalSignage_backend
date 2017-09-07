@@ -633,6 +633,15 @@ class ScreenGroup(Resource):
     @swagger.doc({
         'tags': ['screengroup'],
         'description': 'Get all groups',
+        'parameters': [
+            {
+                'name': 'onlyGroups',
+                'required': False,
+                'description': 'Returns an array of groups',
+                'in': 'query',
+                'type': 'boolean'
+            }
+        ],
         'responses': {
             '200': {
                 'description': 'Groups list',
@@ -653,10 +662,13 @@ class ScreenGroup(Resource):
         no_group_screens = ScreenModel.query.filter_by(group_id=None, deleted=False).all()
         no_group_screens_list = [screen.serialize() for screen in no_group_screens] 
 
-        return {
-                    'groups': groups_list,
-                    'no_group': no_group_screens_list
-                }, 200
+        if request.values.get('onlyGroups', False):
+            return groups_list
+        else:
+            return {
+                        'groups': groups_list,
+                        'no_group': no_group_screens_list
+                    }, 200
 
     @swagger.doc({
         'tags': ['screengroup'],
