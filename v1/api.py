@@ -1616,19 +1616,20 @@ class ConfigurationItem(Resource):
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
         if not conf:
             return {'message': Messages.config_not_found}, 404
-
+        
+        conf.description = request.values.get('description', conf.description)
         conf.head_active = str2bool(request.values.get('head_active', conf.head_active))
         conf.head_height = request.values.get('head_height', conf.head_height)
         conf.head_fontSize = request.values.get('head_fontSize', conf.head_fontSize)
         conf.head_bgColor = request.values.get('head_bgColor', conf.head_bgColor)
         conf.head_textColor = request.values.get('head_textColor', conf.head_textColor)
-        conf.head.borderColor = request.values.get('head_borderColor', conf.head_borderColor)
+        conf.head_borderColor = request.values.get('head_borderColor', conf.head_borderColor)
         conf.head_logo_active = str2bool(request.values.get('head_logo_active', conf.head_logo_active))
         conf.head_logo_url = request.values.get('head_logo_url', conf.head_logo_url)
         conf.head_content_active = str2bool(request.values.get('head_content_active', conf.head_content_active))
         conf.head_content_text = request.values.get('head_content_text', conf.head_content_text)
         conf.head_clock_active = str2bool(request.values.get('head_clock_active', conf.head_clock_active))
-        conf.head_clock_textColor = request.values.get('head_clock_textColor', conf.head.head_clock_textColor)
+        conf.head_clock_textColor = request.values.get('head_clock_textColor', conf.head_clock_textColor)
         conf.head_clock_bgColor = request.values.get('head_clock_bgColor', conf.head_clock_bgColor)
         conf.bottom_active = str2bool(request.values.get('bottom_active', conf.bottom_active))
         conf.bottom_content = request.values.get('bottom_content', conf.bottom_content)
@@ -1640,14 +1641,14 @@ class ConfigurationItem(Resource):
         conf.body_background_bgColor = request.values.get('body_background_bgColor', conf.body_background_bgColor)
         conf.body_background_bgImage = request.values.get('body_background_bgImage', conf.body_background_bgImage)
         conf.body_content_fixedContent = request.values.get('body_content_fixedContent', conf.body_content_fixedContent)
-        conf.body_content_columns = reques.values.get('body_content_columns', conf.body_content_columns)
+        conf.body_content_columns = request.values.get('body_content_columns', conf.body_content_columns)
 
         #Update all screens
-        screens = ScreenModel.query.filter_by(conf_id=conf.id, deleted=False).all()
+        screens = ScreenModel.query.filter_by(config_id=conf.id, deleted=False).all()
         for screen in screens:
-            screen.config_v = screem.config_v + 1
+            screen.config_v = screen.config_v + 1
         
-        groups = ScreenGroupModel.query.filter_by(conf_id=conf.id, deleted=False).all()
+        groups = ScreenGroupModel.query.filter_by(config_id=conf.id, deleted=False).all()
         for group in groups:
             group.config_v = group.config_v + 1
 
