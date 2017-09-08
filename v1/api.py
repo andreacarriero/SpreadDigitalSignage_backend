@@ -818,7 +818,7 @@ class ScreenGroupItem(Resource):
                 'type': 'string'
             },
             {
-                'name': 'locatrion',
+                'name': 'location',
                 'required': False,
                 'description': 'Group location',
                 'in': 'formData',
