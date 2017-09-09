@@ -1065,6 +1065,15 @@ class Configuration(Resource):
     @swagger.doc({
         'tags': ['configuration'],
         'description': 'Get all configurations',
+        'parameters': [
+            {
+                'name': 'getArray',
+                'required': False,
+                'description': 'Return an array with all the configurations',
+                'in': 'query',
+                'type': 'boolean'
+            }
+        ],
         'responses': {
             '200': {
                 'description': 'Configuration list',
@@ -1082,7 +1091,11 @@ class Configuration(Resource):
     def get(self):
         configurations = ConfigurationModel.query.filter_by(deleted=False).all()
         configurations_list = [conf.serialize() for conf in configurations]
-        return {'configurations': configurations_list}, 200
+        
+        if str2bool(request.values.get('getArray', False)):
+            return configurations_list, 200
+        else:
+            return {'configurations': configurations_list}, 200
 
     @swagger.doc({
         'tags': ['configuration'],
