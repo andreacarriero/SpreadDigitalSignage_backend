@@ -187,7 +187,7 @@ class Configuration(db.Model):
     def __init__(
                     self,
                     deleted = False,
-                    description = None,
+                    description = "Default",
                     head_active = True,
                     head_height = '70px',
                     head_fontSize = '2em',
