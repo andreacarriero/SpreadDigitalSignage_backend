@@ -413,7 +413,7 @@ class Screen(Resource):
             screen_name = request.values['name']
             screen_location = request.values.get('location', None)
             screen_group_id = request.values.get('group_id', None)
-            screen_config_id = request.values.get('config_id', None)
+            screen_config_id = request.values.get('config_id', 1)
             screen_active = str2bool(request.values.get('active', False))
         except Exception as e:
             return {'message': str(e)}, 400
@@ -736,7 +736,7 @@ class ScreenGroup(Resource):
         name = request.values.get('name', str(uuid4()))
         location = request.values.get('location', None)
         active = str2bool(request.values.get('active', True))
-        config_id = request.values.get('config_id', None)
+        config_id = request.values.get('config_id', 1)
 
         if config_id:
             config = ConfigurationModel.query.filter_by(id=config_id, deleted=False).first()
