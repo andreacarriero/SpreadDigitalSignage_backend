@@ -260,8 +260,9 @@ class Configuration(db.Model):
                                 'bgImage': self.body_background_bgImage
                             },
                             'content': {
+                                'fixedContentText': self.body_content_fixedContent,
+                                'columnsText': self.body_content_columns,
                                 'fixedContent': ast.literal_eval(self.body_content_fixedContent),
-
                                 'columns': ast.literal_eval(self.body_content_columns)
                             }
                         }
