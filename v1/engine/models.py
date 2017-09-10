@@ -1,6 +1,6 @@
 from util.db import db
 from uuid import uuid4
-import ast
+import ast, time
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -187,7 +187,7 @@ class Configuration(db.Model):
     def __init__(
                     self,
                     deleted = False,
-                    description = "Default",
+                    description = ("Nuova configurazione (%s)" % (time.strftime("%d/%m/%Y %H:%M:%S"))),
                     head_active = True,
                     head_height = '70px',
                     head_fontSize = '2em',
