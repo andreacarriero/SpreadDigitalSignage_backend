@@ -1090,7 +1090,14 @@ class Configuration(Resource):
     @token_required
     def get(self):
         configurations = ConfigurationModel.query.filter_by(deleted=False).all()
-        configurations_list = [conf.serialize() for conf in configurations]
+
+        if len(configurations) == 0:
+            dummyconf = ConfigurationModel()
+            db.session.add(dummyconf)
+            db.session.commit()
+            configuration_list = [dummyconf]
+        else:
+            configurations_list = [conf.serialize() for conf in configurations]
         
         if str2bool(request.values.get('getArray', False)):
             return configurations_list, 200
