@@ -1102,6 +1102,13 @@ class Configuration(Resource):
         'description': 'Add new configuration',
         'parameters': [
             {
+                'name': 'description',
+                'required': False,
+                'description': 'Configuration description',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
                 'name': 'head_active',
                 'required': False,
                 'description': 'Is head bar active?',
@@ -1321,18 +1328,19 @@ class Configuration(Resource):
     @token_required
     def post(self):
         newconf = ConfigurationModel()
+        newconf.description = request.values.get('description', newconf.description)
         newconf.head_active = str2bool(request.values.get('head_active', newconf.head_active))
         newconf.head_height = request.values.get('head_height', newconf.head_height)
         newconf.head_fontSize = request.values.get('head_fontSize', newconf.head_fontSize)
         newconf.head_bgColor = request.values.get('head_bgColor', newconf.head_bgColor)
         newconf.head_textColor = request.values.get('head_textColor', newconf.head_textColor)
-        newconf.head.borderColor = request.values.get('head_borderColor', newconf.head_borderColor)
+        newconf.head_borderColor = request.values.get('head_borderColor', newconf.head_borderColor)
         newconf.head_logo_active = str2bool(request.values.get('head_logo_active', newconf.head_logo_active))
         newconf.head_logo_url = request.values.get('head_logo_url', newconf.head_logo_url)
         newconf.head_content_active = str2bool(request.values.get('head_content_active', newconf.head_content_active))
         newconf.head_content_text = request.values.get('head_content_text', newconf.head_content_text)
         newconf.head_clock_active = str2bool(request.values.get('head_clock_active', newconf.head_clock_active))
-        newconf.head_clock_textColor = request.values.get('head_clock_textColor', newconf.head.head_clock_textColor)
+        newconf.head_clock_textColor = request.values.get('head_clock_textColor', newconf.head_clock_textColor)
         newconf.head_clock_bgColor = request.values.get('head_clock_bgColor', newconf.head_clock_bgColor)
         newconf.bottom_active = str2bool(request.values.get('bottom_active', newconf.bottom_active))
         newconf.bottom_content = request.values.get('bottom_content', newconf.bottom_content)
@@ -1344,7 +1352,7 @@ class Configuration(Resource):
         newconf.body_background_bgColor = request.values.get('body_background_bgColor', newconf.body_background_bgColor)
         newconf.body_background_bgImage = request.values.get('body_background_bgImage', newconf.body_background_bgImage)
         newconf.body_content_fixedContent = request.values.get('body_content_fixedContent', newconf.body_content_fixedContent)
-        newconf.body_content_columns = reques.values.get('body_content_columns', newconf.body_content_columns)
+        newconf.body_content_columns = request.values.get('body_content_columns', newconf.body_content_columns)
 
         try:
             db.session.add(newconf)
@@ -1399,6 +1407,13 @@ class ConfigurationItem(Resource):
         'tags': ['configuration'],
         'description': 'Edit configuration',
         'parameters': [
+            {
+                'name': 'description',
+                'required': False,
+                'description': 'Configuration description',
+                'in': 'formData',
+                'type': 'string'
+            },
             {
                 'name': 'head_active',
                 'required': False,
