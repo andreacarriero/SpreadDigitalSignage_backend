@@ -50,17 +50,6 @@ class ScreenGroup(db.Model):
         self.config_v = 1
         self.config_id = config_id
 
-        #Create dummy configuration if config table is empty
-        try:
-            confs = Configuration.query.all()
-            if not len(confs) >= 1:
-                conf = Configuration()
-                db.session.add(conf)
-                db.session.commit()
-                self.config_id = conf.id
-        except Exception as e:
-            print(e)
-
     def serialize(self):
         members = Screen.query.filter_by(group_id=self.id, deleted=False).all()
         members_list = [screen.serialize() for screen in members]
@@ -109,17 +98,6 @@ class Screen(db.Model):
         self.active = active
         self.config_v = 1
         self.config_id = config_id
-
-        #Create dummy configuration if config table is empty
-        try:
-            confs = Configuration.query.all()
-            if not len(confs) >= 1:
-                conf = Configuration()
-                db.session.add(conf)
-                db.session.commit()
-                self.config_id = conf.id
-        except Exception as e:
-            print(e)
 
     def serialize(self):
         return {
