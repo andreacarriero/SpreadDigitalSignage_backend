@@ -1693,6 +1693,7 @@ class ConfigurationItem(Resource):
             return {'configuration': conf.serialize()}, 200
         
         except Exception as e:
+            log.error(str(e))
             return {'message': Messages.database_update_error}, 500
 
 
