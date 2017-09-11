@@ -1276,42 +1276,6 @@ class Configuration(Resource):
                 'description': 'Image url',
                 'in': 'formData',
                 'type': 'string'
-            },
-            {
-                'name': 'body_content_fixedContent',
-                'required': False,
-                'description': """"
-                                    Fixed bars list.
-                                    Example: [
-                                                {
-                                                    'active': true,
-                                                    'bgColor': '#007EA7',
-                                                    'textColor': '#fff',
-                                                    'borderColor': '#fff',
-                                                    'fontSize': '3em',
-                                                    'marquee': false,
-                                                    'content': 'Riunione ore 10 sala 210A'
-                                                }
-                                            ]
-                                """,
-                'in': 'formData',
-                'type': 'string'
-            },
-            {
-                'name': 'body_content_columns',
-                'required': False,
-                'description': """"
-                                    Columns list.
-                                    Example: [
-                                                {
-                                                    'borderColor': '#fff',
-                                                    'textColor': '#fff',
-                                                    'html': 'bla bla'
-                                                }
-                                            ]
-                                """,
-                'in': 'formData',
-                'type': 'string'
             }
         ],
         'responses': {
@@ -1359,8 +1323,8 @@ class Configuration(Resource):
         newconf.bottom_textColor = request.values.get('bottom_textColor', newconf.bottom_textColor)
         newconf.body_background_bgColor = request.values.get('body_background_bgColor', newconf.body_background_bgColor)
         newconf.body_background_bgImage = request.values.get('body_background_bgImage', newconf.body_background_bgImage)
-        newconf.body_content_fixedContent = request.values.get('body_content_fixedContent', newconf.body_content_fixedContent)
-        newconf.body_content_columns = request.values.get('body_content_columns', newconf.body_content_columns)
+        #newconf.body_content_fixedContent = request.values.get('body_content_fixedContent', newconf.body_content_fixedContent)
+        #newconf.body_content_columns = request.values.get('body_content_columns', newconf.body_content_columns)
 
         try:
             db.session.add(newconf)
@@ -1583,42 +1547,6 @@ class ConfigurationItem(Resource):
                 'in': 'formData',
                 'type': 'string'
             },
-            {
-                'name': 'body_content_fixedContent',
-                'required': False,
-                'description': """"
-                                    Fixed bars list.
-                                    Example: [
-                                                {
-                                                    'active': true,
-                                                    'bgColor': '#007EA7',
-                                                    'textColor': '#fff',
-                                                    'borderColor': '#fff',
-                                                    'fontSize': '3em',
-                                                    'marquee': false,
-                                                    'content': 'Riunione ore 10 sala 210A'
-                                                }
-                                            ]
-                                """,
-                'in': 'formData',
-                'type': 'string'
-            },
-            {
-                'name': 'body_content_columns',
-                'required': False,
-                'description': """"
-                                    Columns list.
-                                    Example: [
-                                                {
-                                                    'borderColor': '#fff',
-                                                    'textColor': '#fff',
-                                                    'html': 'bla bla'
-                                                }
-                                            ]
-                                """,
-                'in': 'formData',
-                'type': 'string'
-            }
         ],
         'responses': {
             '200': {
@@ -1676,8 +1604,8 @@ class ConfigurationItem(Resource):
         conf.bottom_textColor = request.values.get('bottom_textColor', conf.bottom_textColor)
         conf.body_background_bgColor = request.values.get('body_background_bgColor', conf.body_background_bgColor)
         conf.body_background_bgImage = request.values.get('body_background_bgImage', conf.body_background_bgImage)
-        conf.body_content_fixedContent = request.values.get('body_content_fixedContent', conf.body_content_fixedContent)
-        conf.body_content_columns = request.values.get('body_content_columns', conf.body_content_columns)
+        #conf.body_content_fixedContent = request.values.get('body_content_fixedContent', conf.body_content_fixedContent)
+        #conf.body_content_columns = request.values.get('body_content_columns', conf.body_content_columns)
 
         #Update all screens
         screens = ScreenModel.query.filter_by(config_id=conf.id, deleted=False).all()
