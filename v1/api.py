@@ -1095,7 +1095,7 @@ class Configuration(Resource):
             dummyconf = ConfigurationModel()
             db.session.add(dummyconf)
             db.session.commit()
-            configuration_list = [dummyconf]
+            configurations_list = [dummyconf]
         else:
             configurations_list = [conf.serialize() for conf in configurations]
         
