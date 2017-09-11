@@ -21,3 +21,4 @@ class Messages():
 
     #Configuration
     config_not_found = 'Configuration not found'
+    config_element_not_found = 'Element not found'
