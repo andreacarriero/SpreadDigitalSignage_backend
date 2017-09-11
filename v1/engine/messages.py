@@ -17,6 +17,7 @@ class Messages():
     database_add_error = "Error on adding item to DB"
     database_add_ok = "Item added to DB"
     database_update_error = "Error on updating DB"
+    database_record_corrupted = "Database record corrupted"
 
     #Configuration
     config_not_found = 'Configuration not found'
