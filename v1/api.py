@@ -1938,6 +1938,38 @@ class ConfigurationItemFixedContentItem(Resource):
         # Se non ha trovato l'elemento
         return {'message': Messages.config_element_not_found}, 404
 
+    def delete(self, conf_id, uuid):
+        # Cerco la configurazione
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message': Messages.config_not_found}, 404
+
+        # Carico la lista
+        fixedContentList = ast.literal_eval(conf.body_content_fixedContent)
+        if not type(fixedContentList) == type([]):
+            return {'message': Messages.database_record_corrupted}, 500
+
+        newFixedContentList = []
+        uuidFound = False
+
+        # Trovo l'elemento richiesto tramite uuid
+        for singleFixedContent in fixedContentList:
+            if singleFixedContent['uuid'] == uuid:
+                uuidFound = True
+            else:
+                newFixedContentList.append(singleFixedContent)
+                
+        # Se non ha trovato l'elemento
+        if not uuidFound:
+            return {'message': Messages.config_element_not_found}, 404 
+
+        # Sostituisco il record
+        conf.body_content_fixedContent = str(newFixedContentList)
+        db.session.commit()
+
+        return {'configuration': conf.serialize()}, 200
+
+
 ### TO DO
 # Add /configuration/<conf id>/fixedContent add, edit and delete
 # Add /configuration/<conf id>/column add, edit and delete
