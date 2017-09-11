@@ -1971,7 +1971,6 @@ class ConfigurationItemFixedContentItem(Resource):
 
 
 ### TO DO
-# Add /configuration/<conf id>/fixedContent add, edit and delete
 # Add /configuration/<conf id>/column add, edit and delete
 
 
