@@ -3,6 +3,7 @@ from flask_restful_swagger_2 import Api, Resource, swagger
 from passlib.hash import pbkdf2_sha256
 from uuid import uuid4
 from functools import wraps
+import ast
 
 import v1.engine
 from v1.engine.render_client import render_client
@@ -1730,7 +1731,7 @@ class ConfigurationItem(Resource):
                 'description': 'Error on deleting configuration',
                 'examples': {
                     'application/json': {
-                        'error': Messages.database_update_error
+                        'message': Messages.database_update_error
                     }
                 }
             }
@@ -1752,6 +1753,133 @@ class ConfigurationItem(Resource):
             return {'message': Messages.database_update_error}, 500        
 
 
+class ConfigurationItemFixedContent(Resource):
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Add fixedContent element to list',
+        'parameters': [
+            {
+                'name': 'active',
+                'required': True,
+                'description': 'Is element active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'bgColor',
+                'required': True,
+                'description': 'FixedContent element background color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'textColor',
+                'required': True,
+                'description': 'FixedContent element background color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'borderColor',
+                'required': True,
+                'description': 'FixedContent element border color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'fontSize',
+                'required': True,
+                'description': 'FixedContent element font size',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'marquee',
+                'required': True,
+                'description': 'Is marquee active?',
+                'in': 'formData',
+                'type': 'boolean'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Element created',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            },
+            '500': {
+                'description': 'Internal Server Error',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.database_record_corrupted
+                    }
+                }
+            }
+        }
+    })
+    def post(self, conf_id):
+        # Cerca la configurazione
+        conf = ConfigurationModel.query.filter_by(id=conf_id).first()
+        if not conf:
+            return {'message', Messages.config_not_found}, 404
+
+        fixedContentList = ast.literal_eval(conf.body_content_fixedContent)
+
+        # Se non è una lista
+        if not type(fixedContentList) == type([]):
+            return {'message': Messages.database_record_corrupted}, 500
+
+        # Otteno i parametri
+        try:
+            newContentActive = str2bool(request.values['active'])
+            newContentBgColor = request.values['bgColor']
+            newContentTextColor = request.values['textColor']
+            newContentBorderColor = request.values['borderColor']
+            newContentFontSize = request.values['fontSize']
+            newContentMarquee = str2bool(request.values['marquee'])
+            newContentContent = request.values['content']
+        except Exception as e:
+            log.error(str(e))
+            abort(400)
+
+        # Genero il record
+        newContent = {
+            'active': newContentActive,
+            'bgColor': newContentBgColor,
+            'textColor': newContentTextColor,
+            'borderColor': newContentBorderColor,
+            'fontSize': newContentFontSize,
+            'marquee': newContentMarquee,
+            'content': newContentContent
+        }
+
+        # Aggiungo il contenuto all lista
+        fixedContentList.append(newContent)
+
+        # Sostituisco il record nel DB
+        conf.body_content_fixedContent = str(fixedContentList)
+
+        return {'configuration': conf.serialize()}, 200
+
+
+
+### TO DO
+# Add /configuration/<conf id>/fixedContent add, edit and delete
+# Add /configuration/<conf id>/column add, edit and delete
+
+
+
 api.add_resource(Version, '/version')
 api.add_resource(Auth, '/auth')
 api.add_resource(Screen, '/screens')
@@ -1761,3 +1889,4 @@ api.add_resource(ScreenGroupItem, '/group/<int:group_id>')
 api.add_resource(ScreenGroupItemMember, '/group/<int:group_id>/member')
 api.add_resource(Configuration, '/configurations')
 api.add_resource(ConfigurationItem, '/configuration/<int:conf_id>')
+api.add_resource(ConfigurationItemFixedContent, '/configuration/<int:conf_id>/fixedContent')
