@@ -1797,6 +1797,7 @@ class ConfigurationItemFixedContent(Resource):
 
         # Sostituisco il record nel DB
         conf.body_content_fixedContent = str(fixedContentList)
+        db.session.commit()
 
         return {'configuration': conf.serialize()}, 200
 
