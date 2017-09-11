@@ -1783,6 +1783,7 @@ class ConfigurationItemFixedContent(Resource):
 
         # Genero il record
         newContent = {
+            'uuid': str(uuid4()),
             'active': newContentActive,
             'bgColor': newContentBgColor,
             'textColor': newContentTextColor,
