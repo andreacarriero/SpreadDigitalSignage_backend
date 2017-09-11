@@ -1687,6 +1687,13 @@ class ConfigurationItemFixedContent(Resource):
         'description': 'Add fixedContent element to list',
         'parameters': [
             {
+                'name': 'conf_id',
+                'required': True,
+                'description': 'Configuration ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
                 'name': 'active',
                 'required': True,
                 'description': 'Is element active?',
@@ -1758,7 +1765,7 @@ class ConfigurationItemFixedContent(Resource):
     })
     def post(self, conf_id):
         # Cerca la configurazione
-        conf = ConfigurationModel.query.filter_by(id=conf_id).first()
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
         if not conf:
             return {'message', Messages.config_not_found}, 404
 
@@ -1803,6 +1810,133 @@ class ConfigurationItemFixedContent(Resource):
         return {'configuration': conf.serialize()}, 200
 
 
+class ConfigurationItemFixedContentItem(Resource):
+
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Update specific fixedContent element',
+        'parameters': [
+            {
+                'name': 'conf_id',
+                'required': True,
+                'description': 'Configuration ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'uuid',
+                'required': True,
+                'description': 'This fixedContent uuid',
+                'in': 'path',
+                'type': 'string'
+            },
+            {
+                'name': 'active',
+                'required': False,
+                'description': 'Is this fixedContent active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'bgColor',
+                'required': False,
+                'description': 'This fixedContent background color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'textColor',
+                'required': False,
+                'description': 'This fixedContent text color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'borderColor',
+                'required': False,
+                'description': 'This fixedContent border color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'fontSize',
+                'required': False,
+                'description': 'This fixedContent font size',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'marquee',
+                'required': False,
+                'description': 'Is marquee active on this fixedContent?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'content',
+                'required': False,
+                'description': 'HTML content',
+                'in': 'formData',
+                'type': 'string'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'fixedContent updated',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration or element not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            },
+            '500': {
+                'description': 'Internal Server Error',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.database_record_corrupted
+                    }
+                }
+            }
+        }
+    })
+    def put(self,conf_id, uuid):
+        # Cerco la configurazione
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message': Messages.config_not_found}, 404
+
+        # Carico la lista
+        fixedContentList = ast.literal_eval(conf.body_content_fixedContent)
+        if not type(fixedContentList) == type([]):
+            return {'message': Messages.database_record_corrupted}, 500
+
+        # Trovo l'elemento richiesto tramite uuid
+        for singleFixedContent in fixedContentList:
+            if singleFixedContent['uuid'] == uuid:
+                singleFixedContent['active'] = str2bool(request.values.get('active', singleFixedContent['active']))
+                singleFixedContent['bgColor'] = request.values.get('bgColor', singleFixedContent['bgColor'])
+                singleFixedContent['textColor'] = request.values.get('textColor', singleFixedContent['textColor'])
+                singleFixedContent['borderColor'] = request.values.get('borderColor', singleFixedContent['borderColor'])
+                singleFixedContent['fontSize'] = request.values.get('fontSize', singleFixedContent['fontSize'])
+                singleFixedContent['marquee'] = str2bool(request.values.get('marquee', singleFixedContent['marquee']))
+                singleFixedContent['content'] = request.values.get('content', singleFixedContent['content'])
+
+                # Sostitisco il record
+                conf.body_content_fixedContent = str(fixedContentList)
+                db.session.commit
+
+                return {'configuration': conf.serialize()}, 200
+
+        # Se non ha trovato l'elemento
+        return {'message': Messages.config_element_not_found}, 404
 
 ### TO DO
 # Add /configuration/<conf id>/fixedContent add, edit and delete
@@ -1820,3 +1954,4 @@ api.add_resource(ScreenGroupItemMember, '/group/<int:group_id>/member')
 api.add_resource(Configuration, '/configurations')
 api.add_resource(ConfigurationItem, '/configuration/<int:conf_id>')
 api.add_resource(ConfigurationItemFixedContent, '/configuration/<int:conf_id>/fixedContent')
+api.add_resource(ConfigurationItemFixedContentItem, '/configuration/<int:conf_id>/fixedContent/<string:uuid>')
