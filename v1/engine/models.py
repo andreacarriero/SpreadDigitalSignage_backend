@@ -91,7 +91,7 @@ class Screen(db.Model):
     config_v = db.Column(db.Integer)
     config_id = db.Column(db.Integer(), db.ForeignKey('configuration.id'))
 
-    def __init__(self, name, location=None, group_id=None, active=True, config_id=1):
+    def __init__(self, name, location=None, group_id=0, active=True, config_id=1):
         self.name = name
         self.location = location
         self.group_id = group_id
