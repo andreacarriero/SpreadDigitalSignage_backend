@@ -413,13 +413,13 @@ class Screen(Resource):
         try:
             screen_name = request.values['name']
             screen_location = request.values.get('location', None)
-            screen_group_id = request.values.get('group_id', None)
+            screen_group_id = request.values.get('group_id', 0)
             screen_config_id = request.values.get('config_id', 1)
             screen_active = str2bool(request.values.get('active', False))
         except Exception as e:
             return {'message': str(e)}, 400
 
-        if screen_group_id:
+        if screen_group_id and screen_group_id != 0:
             group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
             if not group:
                 return {'message': Messages.screengroup_not_found}, 404
@@ -577,9 +577,12 @@ class ScreenItem(Resource):
             
             screen_group_id = request.values.get('group_id', screen.group_id)
             if screen_group_id:
-                group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
-                if not group:
-                    return {'message': Messages.screengroup_not_found}, 404
+                if screen_group_id != 0:
+                    group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
+                    if not group:
+                        return {'message': Messages.screengroup_not_found}, 404
+                    else:
+                        screen.group_id = screen_group_id
                 else:
                     screen.group_id = screen_group_id
             
@@ -661,7 +664,7 @@ class ScreenGroup(Resource):
         groups = ScreenGroupModel.query.filter_by(deleted=False).all()
         groups_list = [group.serialize() for group in groups]
 
-        no_group_screens = ScreenModel.query.filter_by(group_id=None, deleted=False).all()
+        no_group_screens = ScreenModel.query.filter_by(group_id=0, deleted=False).all()
         no_group_screens_list = [screen.serialize() for screen in no_group_screens] 
 
         if request.values.get('onlyGroups', False):
