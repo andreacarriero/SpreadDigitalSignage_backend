@@ -2079,8 +2079,142 @@ class ConfigurationItemColumn(Resource):
         return {'configuration': conf.serialize()}, 200
         
 
+class ConfigurationItemColumnItem(Resource):
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Update specific column element',
+        'parameters': [
+            {
+                'name': 'conf_id',
+                'required': True,
+                'description': 'Configuration ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'uuid',
+                'required': True,
+                'description': 'Column element UUID',
+                'in': 'path',
+                'type': 'string'
+            },
+            {
+                'name': 'active',
+                'required': False,
+                'description': 'Is element active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'borderColor',
+                'required': False,
+                'description': 'FixedContent element border color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'textColor',
+                'required': False,
+                'description': 'FixedContent element background color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'content',
+                'required': False,
+                'description': 'HTML Content',
+                'in': 'formData',
+                'type': 'string'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'column updated',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration or element not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            },
+            '500': {
+                'description': 'Internal Server Error',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.database_record_corrupted
+                    }
+                }
+            }
+        }
+    })
+    def put(self,conf_id, uuid):
+        # Cerco la configurazione
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message': Messages.config_not_found}, 404
+
+        # Carico la lista
+        columnsList = ast.literal_eval(conf.body_content_columns)
+        if not type(columnsList) == type([]):
+            return {'message': Messages.database_record_corrupted}, 500
+
+        # Trovo l'elemento richiesto tramite uuid
+        for singleColumn in columnsList:
+            if singleColumn['uuid'] == uuid:
+                singleColumn['active'] = str2bool(request.values.get('active', singleColumn['active']))
+                singleColumn['textColor'] = request.values.get('textColor', singleColumn['textColor'])
+                singleColumn['borderColor'] = request.values.get('borderColor', singleColumn['borderColor'])
+                singleColumn['content'] = request.values.get('content', singleColumn['content'])
+
+                # Sostitisco il record
+                conf.body_content_columns = str(columnsList)
+                db.session.commit
+
+                return {'configuration': conf.serialize()}, 200
+
+        # Se non ha trovato l'elemento
+        return {'message': Messages.config_element_not_found}, 404
+
+    def delete(self, conf_id, uuid):
+        # Cerco la configurazione
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message': Messages.config_not_found}, 404
+
+        # Carico la lista
+        columnsList = ast.literal_eval(conf.body_content_columns)
+        if not type(columnsList) == type([]):
+            return {'message': Messages.database_record_corrupted}, 500
+
+        newColumnsList = []
+        uuidFound = False
+
+        # Trovo l'elemento richiesto tramite uuid
+        for singleColumn in columnsList:
+            if singleColumn['uuid'] == uuid:
+                uuidFound = True
+            else:
+                newColumnsList.append(singleColumn)
+                
+        # Se non ha trovato l'elemento
+        if not uuidFound:
+            return {'message': Messages.config_element_not_found}, 404 
+
+        # Sostituisco il record
+        conf.body_content_columns = str(newColumnsList)
+        db.session.commit()
+
+        return {'configuration': conf.serialize()}, 200
+
 ### TO DO
-# Add /configuration/<conf id>/column add, edit and delete
+# Add /configuration/<conf id>/column edit and delete
 
 
 
@@ -2096,3 +2230,4 @@ api.add_resource(ConfigurationItem, '/configuration/<int:conf_id>')
 api.add_resource(ConfigurationItemFixedContent, '/configuration/<int:conf_id>/fixedContent')
 api.add_resource(ConfigurationItemFixedContentItem, '/configuration/<int:conf_id>/fixedContent/<string:uuid>')
 api.add_resource(ConfigurationItemColumn, '/configuration/<int:conf_id>/column')
+api.add_resource(ConfigurationItemColumnItem, '/configuration/<int:conf_id>/column/<string:uuid>')
