@@ -583,8 +583,8 @@ class ScreenItem(Resource):
                         return {'message': Messages.screengroup_not_found}, 404
                     else:
                         screen.group_id = screen_group_id
-                else:
-                    screen.group_id = screen_group_id
+            else:
+                screen.group_id = 0
             
             db.session.commit()
             screen.push_on_the_fly()
