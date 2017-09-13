@@ -2213,8 +2213,6 @@ class ConfigurationItemColumnItem(Resource):
 
         return {'configuration': conf.serialize()}, 200
 
-### TO DO
-# Add /configuration/<conf id>/column edit and delete
 
 
 
