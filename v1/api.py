@@ -413,7 +413,7 @@ class Screen(Resource):
         try:
             screen_name = request.values['name']
             screen_location = request.values.get('location', None)
-            screen_group_id = request.values.get('group_id', 0)
+            screen_group_id = int(request.values.get('group_id', 0))
             screen_config_id = request.values.get('config_id', 1)
             screen_active = str2bool(request.values.get('active', False))
         except Exception as e:
@@ -575,7 +575,7 @@ class ScreenItem(Resource):
                 else:
                     screen.config_id = screen_config_id            
             
-            screen_group_id = request.values.get('group_id', screen.group_id)
+            screen_group_id = int(request.values.get('group_id', screen.group_id))
             if screen_group_id:
                 if screen_group_id != 0:
                     group = ScreenGroupModel.query.filter_by(id=screen_group_id, deleted=False).first()
