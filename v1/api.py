@@ -1970,6 +1970,115 @@ class ConfigurationItemFixedContentItem(Resource):
         return {'configuration': conf.serialize()}, 200
 
 
+class ConfigurationItemColumn(Resource):
+    @swagger.doc({
+        'tags': ['configuration'],
+        'description': 'Add column element to list',
+        'parameters': [
+            {
+                'name': 'conf_id',
+                'required': True,
+                'description': 'Configuration ID',
+                'in': 'path',
+                'type': 'integer'
+            },
+            {
+                'name': 'active',
+                'required': True,
+                'description': 'Is element active?',
+                'in': 'formData',
+                'type': 'boolean'
+            },
+            {
+                'name': 'borderColor',
+                'required': True,
+                'description': 'FixedContent element border color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'textColor',
+                'required': True,
+                'description': 'FixedContent element background color',
+                'in': 'formData',
+                'type': 'string'
+            },
+            {
+                'name': 'content',
+                'required': True,
+                'description': 'HTML Content',
+                'in': 'formData',
+                'type': 'string'
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': 'Element created',
+                'examples': {
+                    'application/json': {
+                        'configuration': ConfigurationModel.doc()
+                    }
+                }
+            },
+            '404': {
+                'description': 'Configuration not found',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_not_found
+                    }
+                }
+            },
+            '500': {
+                'description': 'Internal Server Error',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.database_record_corrupted
+                    }
+                }
+            }
+        }
+    })
+    def post(self, conf_id):
+        # Cerca la configurazione
+        conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
+        if not conf:
+            return {'message', Messages.config_not_found}, 404
+
+        columnsList = ast.literal_eval(conf.body_content_columns)
+
+        # Se non è una lista
+        if not type(columnsList) == type([]):
+            return {'message': Messages.database_record_corrupted}, 500
+
+        # Otteno i parametri
+        try:
+            newContentActive = str2bool(request.values['active'])
+            newContentBorderColor = request.values['borderColor']
+            newContentTextColor = request.values['textColor']
+            newContentHTML = request.values['content']
+        except Exception as e:
+            log.error(str(e))
+            abort(400)
+
+        # Genero il record
+        newContent = {
+            'uuid': str(uuid4()),
+            'active': newContentActive,
+            'borderColor': newContentBorderColor,
+            'textColor': newContentTextColor,
+            'content': newContentHTML
+        }
+
+        # Aggiungo il contenuto all lista
+        columnsList.append(newContent)
+
+        # Sostituisco il record nel DB
+        conf.body_content_columns = str(columnsList)
+        db.session.commit()
+
+        return {'configuration': conf.serialize()}, 200
+        
+
 ### TO DO
 # Add /configuration/<conf id>/column add, edit and delete
 
@@ -1986,3 +2095,4 @@ api.add_resource(Configuration, '/configurations')
 api.add_resource(ConfigurationItem, '/configuration/<int:conf_id>')
 api.add_resource(ConfigurationItemFixedContent, '/configuration/<int:conf_id>/fixedContent')
 api.add_resource(ConfigurationItemFixedContentItem, '/configuration/<int:conf_id>/fixedContent/<string:uuid>')
+api.add_resource(ConfigurationItemColumn, '/configuration/<int:conf_id>/column')
