@@ -441,6 +441,12 @@ class Screen(Resource):
             screen.config_id = screen_config_id
             db.session.add(screen)
             db.session.commit()
+            
+            #Sanitize config_id
+            if screen_group_id and screen_group_id != 0:
+                if group:
+                    group.sanitize_members_config()
+
             return {
                         'screen': screen.serialize()    
                     }, 201
@@ -587,6 +593,12 @@ class ScreenItem(Resource):
                 screen.group_id = 0
             
             db.session.commit()
+            
+            #Sanitize config_id
+            if screen_group_id:
+                if group:
+                    group.sanitize_members_config()
+
             screen.push_on_the_fly()
             return {'screen': screen.serialize()}, 200
         else:
@@ -993,6 +1005,11 @@ class ScreenGroupItemMember(Resource):
         if screen:
             screen.group_id = group_id
             db.session.commit()
+
+            #Sanitize config_id
+            if group:
+                group.sanitize_members_config()
+
             return {
                         'screen': screen.serialize(),
                         'group': group.serialize()
@@ -1682,8 +1699,8 @@ class ConfigurationItem(Resource):
         if not conf:
             return {'message': Messages.config_not_found}, 404
 
-        screens_with_conf = ScreenModel.query.filter_by(deleted=False, conf_if=conf.id).all()
-        groups_with_conf = ScreenGroupmModel.query.filter_by(deleted=False, conf_id=conf.id).all()
+        screens_with_conf = ScreenModel.query.filter_by(deleted=False, config_id=conf.id).all()
+        groups_with_conf = ScreenGroupModel.query.filter_by(deleted=False, config_id=conf.id).all()
 
         if screens_with_conf or groups_with_conf:
             return {'message': Messages.config_is_used}, 400
