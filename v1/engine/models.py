@@ -64,6 +64,12 @@ class ScreenGroup(db.Model):
                     'members': members_list
                 }
 
+    def sanitize_members_config(self):
+        members = members = Screen.query.filter_by(group_id=self.id, deleted=False).all()
+        for member in members:
+            member.config_id = self.config_id
+        db.session.commit()
+
     def push_on_the_fly(self):
         self.config_v = self.config_v + 1
         db.session.commit()
