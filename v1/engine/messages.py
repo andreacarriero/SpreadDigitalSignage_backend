@@ -22,3 +22,4 @@ class Messages():
     #Configuration
     config_not_found = 'Configuration not found'
     config_element_not_found = 'Element not found'
+    config_is_used = 'This configuration is being used by a screen or a group'

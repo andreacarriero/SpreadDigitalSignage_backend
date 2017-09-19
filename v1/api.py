@@ -1650,6 +1650,14 @@ class ConfigurationItem(Resource):
                     }
                 }
             },
+            '400': {
+                'description': 'Configuration is being used',
+                'examples': {
+                    'application/json': {
+                        'message': Messages.config_is_used
+                    }
+                }
+            },
             '404': {
                 'description': 'Configuration not found',
                 'examples': {
@@ -1673,6 +1681,12 @@ class ConfigurationItem(Resource):
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
         if not conf:
             return {'message': Messages.config_not_found}, 404
+
+        screens_with_conf = ScreenModel.query.filter_by(deleted=False, conf_if=conf.id).all()
+        groups_with_conf = ScreenGroupmModel.query.filter_by(deleted=False, conf_id=conf.id).all()
+
+        if screens_with_conf or groups_with_conf:
+            return {'message': Messages.config_is_used}, 400
 
         conf.deleted = True
 
