@@ -1,0 +1,6 @@
+{
+    "secretKey": "v3rys3cur3",
+    "databaseURI": "sqlite:///data/database.db",
+    "apiKEY": "12345",
+    "apiSECRET": "67890"
+}

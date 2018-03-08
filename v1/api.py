@@ -15,6 +15,7 @@ from v1.engine.models import Configuration as ConfigurationModel
 
 from util.db import db
 from util.str2bool import str2bool
+from util.configuration_loader import conf
 
 #Logging
 import logging
@@ -27,8 +28,8 @@ app = Blueprint('apiv1', __name__)
 api = Api(app, api_version=apiVersion, base_path='/api/v1', api_spec_url='/spec')
 
 ##########
-API_KEY = '12345'
-API_SECRET = '67890'
+API_KEY = conf['apiKEY']
+API_SECRET = conf['apiSECRET']
 ##########
 
 #Auth
