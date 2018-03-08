@@ -1797,6 +1797,7 @@ class ConfigurationItemFixedContent(Resource):
             }
         }
     })
+    @token_required
     def post(self, conf_id):
         # Cerca la configurazione
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
@@ -1941,6 +1942,7 @@ class ConfigurationItemFixedContentItem(Resource):
             }
         }
     })
+    @token_required
     def put(self,conf_id, uuid):
         # Cerco la configurazione
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
@@ -1971,7 +1973,8 @@ class ConfigurationItemFixedContentItem(Resource):
 
         # Se non ha trovato l'elemento
         return {'message': Messages.config_element_not_found}, 404
-
+    
+    @token_required
     def delete(self, conf_id, uuid):
         # Cerco la configurazione
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
@@ -2072,6 +2075,7 @@ class ConfigurationItemColumn(Resource):
             }
         }
     })
+    @token_required
     def post(self, conf_id):
         # Cerca la configurazione
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
@@ -2188,6 +2192,7 @@ class ConfigurationItemColumnItem(Resource):
             }
         }
     })
+    @token_required
     def put(self,conf_id, uuid):
         # Cerco la configurazione
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
@@ -2215,7 +2220,8 @@ class ConfigurationItemColumnItem(Resource):
 
         # Se non ha trovato l'elemento
         return {'message': Messages.config_element_not_found}, 404
-
+    
+    @token_required
     def delete(self, conf_id, uuid):
         # Cerco la configurazione
         conf = ConfigurationModel.query.filter_by(id=conf_id, deleted=False).first()
